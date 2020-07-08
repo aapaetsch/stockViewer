@@ -36,3 +36,16 @@
     transform: rotate(360deg);
   }
 }
+
+.centerItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -moz-Transform: translateX(-50%) translateY(-50%);
+  -webkit-Transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.site-card-border-less-wrapper {
+  background: #ececec;
+}
