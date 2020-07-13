@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
-import {Modal, Button, Form, Input, Select, Divider, Space, Col, Row} from 'antd';
+import React, { Component, createRef } from 'react';
+import {Modal, Button, Form, Input, Select, Divider, Space, Col, Row, message} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../styles/stocklist.css';
+import {getAllTickers, addPosition} from "../helpers/firebaseCommunication";
 const { Option } = Select;
 
 export default class AddStock extends Component{
@@ -10,71 +11,56 @@ export default class AddStock extends Component{
         this.state = {
             visible: false,
             costTypeSize: 110,
-            formNotFilled: true,
-            costType: 'perShare',
-            ticker: null,
-            category: 'misc',
-            shares: null,
-            cost: null,
         }
         this.addStockOk = this.addStockOk.bind(this);
         this.addStockCancel = this.addStockCancel.bind(this);
-        this.showAddStock = this.showAddStock.bind(this);
-        // this.handleFormChange = this.handleFormChange.bind(this);
-        this.handleFieldChange = this.handleFieldChange.bind(this);
+        this.formRef = createRef();
     }
 
-    addStockOk = e => {
-        this.setState({
-            visible: false,
-            formNotFilled: true,
-        });
-        //TODO: add logic for adding a stock
+    async addStockOk(values) {
+        console.log(values);
+        //check the values to see if they are proper
+        if (values.shares.toString().includes('.')){
+            message.error('Number of shares must be whole numbers.', 15)
+        } else if (isNaN(values.cost)) {
+            message.error('Cost must be a number.');
+        } else {
+            var totalCost;
+            if (values.costType === 'perShare'){
+                totalCost = values.cost * values.shares;
+            } else {
+                totalCost = values.cost;
+            }
+            addPosition(values.ticker.toUpperCase(), values.exchange, values.category, values.shares, totalCost)
+                .then((success) => {
+                    if (success){
+                        message.success('Position added successfully.')
+                    } else {
+                        message.error('There was an error adding the position.')
+                    }
+                    this.hideAddStock();
+                })
+        }
     }
 
-    addStockCancel = e => {
-        this.setState({
-            visible: false,
-            formNotFilled: true,
-            costType: 'perShare',
-            ticker: null,
-            category: 'misc',
-            shares: null,
-            cost: null,
-        });
-        //TODO: add logic for canceling adding a stock
+
+
+    async addStockCancel() {
+        this.hideAddStock();
     }
 
-    showAddStock = () =>{
-        this.setState({
-            visible: true,
-        });
+    showAddStock = () => {
+        this.setState({visible: true});
     }
 
-    // handleFormChange(event,e) {
-    //     for (let key in event){
-    //         this.setState({
-    //             [key]: event[key],
-    //         });
-    //     }
-    //
-    //     if (this.state.ticker !== null && this.state.shares !== null && this.state.cost !== null ){
-    //         this.setState({
-    //             formNotFilled: false,
-    //         });
-    //     }
-    //     console.log(this.state);
-    //
-    // }
-    handleFieldChange(event,fields){
-        // console.log(event[0],e);
-        // if (event !== undefined){
-        //     event[0].name
-        // }
-        //
-        // fields
+    hideAddStock = () => {
+        this.setState({visible: false});
+        this.formRef.current.resetFields();
     }
 
+    testFunction = () => {
+        // getAllTickers();
+    }
 
     render(){
         const formItemLayout = {
@@ -92,6 +78,7 @@ export default class AddStock extends Component{
         )
         return (
           <div>
+              {/*TODO: only enable add if a user is logged in.*/}
               <Button type="primary" icon={<PlusOutlined/>} onClick={this.showAddStock}/>
               <Modal
                   title="Add A Stock"
@@ -100,19 +87,17 @@ export default class AddStock extends Component{
                   okText={'Add'}
                   maskClosable={false}
                   closable={false}
-                  onOk={this.addStockOk}
-                  onCancel={this.addStockCancel}
+                  footer={[]}
                   >
                   <Form
                       {...formItemLayout}
                       layout='horizontal'
-                      size='small'
+                      size='medium'
                       initialValues={{
                           costType: 'perShare',
                       }}
-                      onFinish={this.onFinish}
-                      // onValuesChange={this.handleFormChange}
-                      onFieldsChange={this.handleFieldChange}
+                      ref={this.formRef}
+                      onFinish={this.addStockOk}
                   >
                       <Form.Item
                           name='ticker'
@@ -173,22 +158,16 @@ export default class AddStock extends Component{
                           name='shares'
                           label='Shares'
                           rules={[
-                              {
-                                  required: true,
-                                  message: 'Must have at least 1 share.',
-                              },
+                              { required: true, message: 'Must have at least 1 share.'}
                           ]}
                       >
-                          <Input />
+                          <Input type='number'/>
                       </Form.Item>
                       <Form.Item
                           name='cost'
                           label='Cost'
                           rules={[
-                              {
-                                  required: true,
-                                  message: "A stock must have a cost.",
-                              }
+                              { required: true, message: "A stock must have a cost."}
                           ]}
                       >
                           <Input
@@ -196,6 +175,19 @@ export default class AddStock extends Component{
                               style={{width: '100%'}}
                           />
                       </Form.Item>
+                      <Row justify='end' align='middle'>
+                          <Col span={4}>
+                              <Space>
+                                  <Button type='primary' onClick={this.testFunction}>
+                                      Test
+                                  </Button>
+                                  <Button type='submit' onClick={this.addStockCancel}>Cancel</Button>
+                                  <Button type='primary' htmlType='submit'>Submit</Button>
+                              </Space>
+
+                          </Col>
+                          <Col span={5}/>
+                      </Row>
                   </Form>
               </Modal>
           </div>

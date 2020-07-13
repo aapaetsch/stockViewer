@@ -1,22 +1,35 @@
 import React, { Component } from 'react';
-import { Layout, Row, Col, Space, Affix } from 'antd';
+import { Row, Col} from 'antd';
 import StockList from "../components/stocklist";
 import MenuBar from "../components/menubar";
 import 'antd/dist/antd.css';
 import '../App.css';
 import LocationDonut from "../components/locationDonut";
 import CatagoryRadar from "../components/catagoryRadar";
+import { auth } from '../services/firebase';
 
-const {Header, Footer, Content } = Layout;
 
 export default class MainPage extends Component {
     constructor(props){
         super(props);
         this.state = {
-            borders: [16,16]
+            borders: [16,16],
+            currentUser: null,
         }
     }
 
+    componentDidMount(){
+        this.setState({
+            currentUser: auth().currentUser,
+        });
+    }
+
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return auth().currentUser !== this.state.currentUser;
+    }
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.setState({currentUser: auth().currentUser});
+    }
 
     render() {
         return (
@@ -25,7 +38,7 @@ export default class MainPage extends Component {
                     {/*Login bar and ect...*/}
                     <Col span={24} style={{background: 'white'}}>
                         <br/>
-                        <MenuBar/>
+                        <MenuBar currentUser={this.state.currentUser}/>
                     </Col>
                 </Row>
                 <br/>

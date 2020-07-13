@@ -58,20 +58,27 @@ export default class App extends Component {
 
 
     render() {
-        return this.state.loading === false ?
-            (<div><LoadingScreen/></div>)
-            :
-            (
-                <div>
-                    <Router>
-                        <Switch>
-                            <Route exact path='/' component={mainpage}/>
-
-
-                        </Switch>
-                    </Router>
-                </div>
-            );
+        return (
+            <div>
+                <Router>
+                    <Switch>
+                        <Route exact path='/' component={mainpage}/>
+                    </Switch>
+                </Router>
+            </div>
+        )
+        // return this.state.loading === false ?
+        //     (<div><LoadingScreen/></div>)
+        //     :
+        //     (
+        //         <div>
+        //             <Router>
+        //                 <Switch>
+        //                     <Route exact path='/' component={mainpage}/>
+        //                 </Switch>
+        //             </Router>
+        //         </div>
+        //     );
     }
 
 }

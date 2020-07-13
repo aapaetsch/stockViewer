@@ -1,18 +1,49 @@
 import React, { Component } from 'react';
-import {Menu, Button, Row, Col} from 'antd';
+import { Row, Col, Space, Avatar, Button, message} from 'antd';
+import { logout } from '../helpers/auth';
+import Authenticate from "../popups/authenticate";
+import { UserOutlined, ImportOutlined } from '@ant-design/icons';
 import '../styles/stocklist.css';
 import 'antd/dist/antd.css';
-import { auth } from 'firebase';
+
 export default class MenuBar extends Component {
     constructor(props){
         super(props);
         this.state = {
             selected: null,
+            currentUser: null,
+            separatorCol: 15,
+            userCol: 2,
         }
     }
 
+    componentDidMount(){
+        this.formatMenu();
+    }
 
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return this.state.currentUser !== nextProps.currentUser;
+    }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.formatMenu();
+    }
+
+    formatMenu = () => {
+        if (this.props.currentUser === null){
+            this.setState({
+                separatorCol: 15,
+                userCol: 2,
+                currentUser: this.props.currentUser
+            });
+        } else {
+            this.setState({
+                separatorCol: 14,
+                userCol: 3,
+                currentUser: this.props.currentUser
+            });
+        }
+    }
 
     render () {
         return(
@@ -23,18 +54,30 @@ export default class MenuBar extends Component {
                       Stonks
                   </h2>
               </Col>
-              <Col span={14}/>
-              <Col className='gutter-row' span={2}>
-                  <Button type='primary'>
-                      Login
-                  </Button>
+              <Col span={this.state.separatorCol}/>
+              <Col className='gutter-row' span={this.state.userCol}>
+                  { this.state.currentUser === null ?
+                      (<Space>
+                          <Authenticate title={'Login'}/>
+                          <Authenticate title={'Sign Up'}/>
+                      </Space>)
+                      :
+                      (
+                          <Space>
+                            <Avatar
+                                src={this.state.currentUser.photoURL}
+                                icon={<UserOutlined/>}/>
+                                { this.state.currentUser.displayName === null ?
+                                    (this.state.currentUser.email):(this.state.currentUser.displayName)
+                                }&nbsp;&nbsp;
+                                <Button type='primary' icon={<ImportOutlined/>} onClick={logout}>
+                                    Logout
+                                </Button>
+                            </Space>
+                      )
+                  }
               </Col>
-              <Col className='gutter-row' span={2}>
-                  <Button type='primary'>
-                      Sign Up
-                  </Button>
-              </Col>
-              <Col span={2}/>
+              <Col span={3}/>
           </Row>
         );
     }

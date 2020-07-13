@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Button, List, Row, Col, Divider, Table } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import { Card, Button, Row, Col, Table } from 'antd';
 import AddStock from "../popups/addStock";
 import 'antd/dist/antd.css';
 import '../App.css';

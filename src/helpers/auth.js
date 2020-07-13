@@ -1,17 +1,27 @@
 import { auth } from '../services/firebase';
 import { message } from 'antd';
 
-export function signup(email, password){
-    let usr = auth().createUserWithEmailAndPassword(email, password);
-    return usr;
+export async function signup(email, password){
+    try{
+        await auth().createUserWithEmailAndPassword(email, password);
+        return true;
+    } catch(error){
+        console.log(error);
+        return false;
+    }
 }
 
-export function signin(email, password){
-    let usr = auth().signInWithEmailAndPassword(email, password);
-    return usr;
+export async function signin(email, password){
+    try{
+        await auth().signInWithEmailAndPassword(email, password);
+        return true;
+    } catch(error) {
+        console.log(error);
+        return false;
+    }
 }
 
-export function signInWithProvider(providerName){
+export async function signInWithProvider(providerName){
     let provider;
     switch(providerName){
         case 'google':
@@ -27,22 +37,31 @@ export function signInWithProvider(providerName){
             provider = null;
             break;
     }
-    return auth().signInWithPopup(provider);
+    try{
+        await auth().signInWithPopup(provider);
+        return true;
+    } catch(error){
+        console.log(error);
+        return false;
+    }
+
 }
 
 export async function sessionPersistence(remember){
     try {
-        let persistenceStatus;
         if (remember){
-            persistenceStatus = await auth().setPersistence(auth().Auth.Persistence.LOCAL);
-            return persistenceStatus;
+            await auth().setPersistence(auth().Persistence.LOCAL);
         } else {
-            persistenceStatus = await auth().setPersistence(auth().Auth.Persistence.SESSION);
-            return persistenceStatus;
+            await auth().setPersistence(auth().Persistence.SESSION);
         }
+        return true;
     } catch(error) {
         console.log('persistence error:', error);
         message.error('Error login will not be remembered.');
         return false;
     }
+}
+
+export async function logout(){
+    return auth().signOut();
 }
