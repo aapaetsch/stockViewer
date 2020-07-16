@@ -32,6 +32,7 @@ export default class MenuBar extends Component {
 
 
     formatMenu = () => {
+        console.log(this.props.currentUser);
         const currentUsr = this.props.currentUser;
         if (currentUsr === null){
             this.setState({

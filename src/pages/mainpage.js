@@ -24,41 +24,18 @@ export default class MainPage extends Component {
         this.formatStockData = this.formatStockData.bind(this);
     }
 
-    //TODO: fix the double component update $$$ on server
-    // shouldComponentUpdate(nextProps, nextState, nextContext) {
-    //     let shouldUpdate = false;
-    //     auth().onAuthStateChanged((user) => {
-    //         if (user !== this.state.currentUser){
-    //             shouldUpdate = true;
-    //         }
-    //     });
-    //     return shouldUpdate;
-    // }
-    //
-
-    //
-    // componentDidMount(){
-    //     this.setState({currentUser: auth().currentUser}, () => this.setUserStocks());
-    // }
 
     componentDidMount(){
         this.setState({
-            currentUser: auth().currentUser,
+            currentUser: this.props.currentUser,
         });
     }
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        // return this.state.currentUser !== auth().currentUser;
-        // auth().onAuthStateChanged( (user) => {
-        //     if (user !== this.state.currentUser){
-        //         return true;
-        //     }
-        // });
-        // return false;
+        return this.props !== nextProps;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log('prevState',prevState);
-        const user = auth().currentUser;
+        const user = this.props.currentUser;
         this.setState({currentUser: user});
         if (user !== null){
             this.setUserStocks();
@@ -118,26 +95,15 @@ export default class MainPage extends Component {
                 originalPercent: (data.cost/totalBookValue) * 100,
                 portfolioPercent: (data.cost/totalBookValue) * 100,
             }
-
             stockData.push(stock);
         });
         return stockData;
     }
 
 
-
-
-
     render() {
         return (
             <div className='site-card-border-less-wrapper'>
-                <Row justify='end' gutter={[0, 20]} align='middle'>
-                    {/*Login bar and ect...*/}
-                    <Col span={24} style={{background: 'white'}}>
-                        <br/>
-                        <MenuBar currentUser={this.state.currentUser}/>
-                    </Col>
-                </Row>
                 <br/>
                 {/*Main stocks*/}
                 <Row justify='center' gutter={this.state.borders}>
@@ -155,14 +121,11 @@ export default class MainPage extends Component {
 
                         </Card>
                     </Col>
-                    <Col className='gutter-row' span={4}>
-                        {/*<CategoryRadar data={this.state.data}/>*/}
+                    <Col className='gutter-row' span={9}>
+                        <CategoryRadar data={this.state.data}/>
                     </Col>
                     <Col className='gutter-row' span={4}>
                         {/*<LocationDonut/>*/}
-                    </Col>
-                    <Col className='gutter-row' span={8}>
-                        <StockList/>
                     </Col>
                 </Row>
             </div>
