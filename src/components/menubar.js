@@ -5,6 +5,7 @@ import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
 import '../styles/stocklist.css';
 import 'antd/dist/antd.css';
+import {auth} from "../services/firebase";
 
 export default class MenuBar extends Component {
     constructor(props){
@@ -22,25 +23,27 @@ export default class MenuBar extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.state.currentUser !== nextProps.currentUser;
+        return this.props.currentUser !== nextProps.currentUser;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        console.log(this.props.currentUser);
         this.formatMenu();
     }
 
     formatMenu = () => {
-        if (this.props.currentUser === null){
+        const currentUsr = auth().currentUser;
+        if (currentUsr === null){
             this.setState({
                 separatorCol: 15,
                 userCol: 2,
-                currentUser: this.props.currentUser
+                currentUser: currentUsr,
             });
         } else {
             this.setState({
                 separatorCol: 14,
                 userCol: 3,
-                currentUser: this.props.currentUser
+                currentUser: currentUsr,
             });
         }
     }

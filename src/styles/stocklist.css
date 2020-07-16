@@ -3,3 +3,16 @@
     background: #bfbfbf;
 }
 
+.negative{
+    color: #f5222d;
+}
+.smallPositive{
+    color:#000000;
+}
+.mediumPositive{
+    color:#52c41a;
+}
+.largePositive{
+    color:#722ed1;
+}
+

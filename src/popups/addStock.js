@@ -1,5 +1,5 @@
 import React, { Component, createRef } from 'react';
-import {Modal, Button, Form, Input, Select, Divider, Space, Col, Row, message} from 'antd';
+import {Modal, Button, Form, Input, Select, notification, Space, Col, Row, message} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import '../styles/stocklist.css';
 import {getAllTickers, addPosition} from "../helpers/firebaseCommunication";
@@ -25,16 +25,20 @@ export default class AddStock extends Component{
         } else if (isNaN(values.cost)) {
             message.error('Cost must be a number.');
         } else {
-            var totalCost;
+            let totalCost;
             if (values.costType === 'perShare'){
                 totalCost = values.cost * values.shares;
             } else {
                 totalCost = values.cost;
             }
+            message.loading("Add Stock in Progress...", 3);
             addPosition(values.ticker.toUpperCase(), values.exchange, values.category, values.shares, totalCost)
                 .then((success) => {
                     if (success){
-                        message.success('Position added successfully.')
+                        notification['success']({
+                            message: 'Added Stock Successfully',
+                            description: this.notificationContent(values, totalCost)
+                        });
                     } else {
                         message.error('There was an error adding the position.')
                     }
@@ -43,6 +47,15 @@ export default class AddStock extends Component{
         }
     }
 
+    notificationContent = (values, totalCost) =>{
+        return (
+            <span>
+                Ticker: {values.ticker.toUpperCase()}.{values.exchange.toUpperCase()}<br/>
+                Category: {values.category}<br/>
+                Cost: {totalCost}
+            </span>
+        );
+    }
 
 
     async addStockCancel() {
@@ -58,9 +71,7 @@ export default class AddStock extends Component{
         this.formRef.current.resetFields();
     }
 
-    testFunction = () => {
-        // getAllTickers();
-    }
+
 
     render(){
         const formItemLayout = {
@@ -83,8 +94,6 @@ export default class AddStock extends Component{
               <Modal
                   title="Add A Stock"
                   visible={this.state.visible}
-                  okButtonProps={{disabled: this.state.formNotFilled}}
-                  okText={'Add'}
                   maskClosable={false}
                   closable={false}
                   footer={[]}
@@ -138,20 +147,20 @@ export default class AddStock extends Component{
                           ]}
                       >
                           <Select>
-                              <Option value="tech">Technology</Option>
-                              <Option value="communication">Communication</Option>
+                              <Option value="Technology">Technology</Option>
+                              <Option value="Communication">Communication</Option>
                               {/*Is this consumer non-cyc*/}
-                              <Option value="conNonCyclical">Consumer Discretionary</Option>
-                              <Option value="conCyclical">Consumer Staples</Option>
-                              <Option value='energy'>Energy</Option>
-                              <Option value="financial">Financial</Option>
-                              <Option value="healthcare">Healthcare</Option>
-                              <Option value="industrial">Industrial</Option>
-                              <Option value="materials">Materials</Option>
-                              <Option value="realestate">Real Estate</Option>
-                              <Option value="util">Utilities</Option>
-                              <Option value="international">International</Option>
-                              <Option value="misc">Misc</Option>
+                              <Option value="Consumer Discretionary">Consumer Discretionary</Option>
+                              <Option value="Consumer Staple">Consumer Staples</Option>
+                              <Option value='Energy'>Energy</Option>
+                              <Option value="Financial">Financial</Option>
+                              <Option value="Healthcare">Healthcare</Option>
+                              <Option value="Industrial">Industrial</Option>
+                              <Option value="Materials">Materials</Option>
+                              <Option value="Real Estate">Real Estate</Option>
+                              <Option value="Utilities">Utilities</Option>
+                              <Option value="International">International</Option>
+                              <Option value="Misc">Misc</Option>
                           </Select>
                       </Form.Item>
                       <Form.Item
@@ -178,9 +187,6 @@ export default class AddStock extends Component{
                       <Row justify='end' align='middle'>
                           <Col span={4}>
                               <Space>
-                                  <Button type='primary' onClick={this.testFunction}>
-                                      Test
-                                  </Button>
                                   <Button type='submit' onClick={this.addStockCancel}>Cancel</Button>
                                   <Button type='primary' htmlType='submit'>Submit</Button>
                               </Space>

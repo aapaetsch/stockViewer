@@ -3,10 +3,23 @@ import { message } from 'antd';
 //this function gets all of a users stocks
 export async function getPortfolio(){
     try{
-        await db.collection
+        const userID = await auth().currentUser.uid.toString();
+        console.log('userID',userID);
+        const docRef = db.collection('userData').doc(userID);
+        const doc = await docRef.get();
+        console.log('doc', doc.exists);
+        if (doc.exists){
+            //If the user has a portfolio,
+            const portfolio =  await docRef.collection('positions').get();
+            console.log(portfolio);
+            return portfolio;
+        } else {
+            return null;
+        }
     } catch(error){
         console.log(error);
         message.error('There was an error getting the users portfolio.');
+        return null;
     }
 }
 
@@ -78,7 +91,8 @@ async function updatePosition(userID, ticker, newPosition){
 
 async function createPortfolioCollection(userID){
     try{
-        await db.collection('userData').doc(userID).collection('portfolio');
+        let docRef = db.collection('userData').doc(userID);
+        await docRef.set({creationDate: new Date()});
         return true;
     } catch(error){
         console.log(error);

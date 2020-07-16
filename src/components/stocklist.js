@@ -1,32 +1,117 @@
 import React, { Component } from 'react';
 import { Card, Button, Row, Col, Table } from 'antd';
+import { auth } from '../services/firebase'
 import AddStock from "../popups/addStock";
 import 'antd/dist/antd.css';
 import '../App.css';
 import '../styles/stocklist.css';
+
 
 export default class StockList extends Component {
     constructor(props){
         super(props);
         this.state = {
             showLoading: false,
+            gutterSize: [10,10],
+            data: [],
+            totalBookValue: 0,
         }
     }
 
+    shouldComponentUpdate(nextProps, nextState, nextContext){
+        return this.state.data !== nextState.data;
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot){
+        //check if there has been an update in the stocks
+        // if (this.state.data !== []){
+        //     this.formatTableData();
+        // }
+    }
+
+    updateStocks = (parentData, parentBookValue) =>{
+        this.setState({data: parentData, totalBookValue: parentBookValue});
+    }
+
+    //TODO: change portfolioPercent to current value
+    // async formatTableData() {
+    //     let totalBookValue = 0;
+    //     if (this.state.data !== []){
+    //         this.state.data.forEach( (position) => {
+    //             totalBookValue += position.cost;
+    //         });
+    //         this.state.data.forEach( (position) => {
+    //             position.portfolioPercent = (position.cost/totalBookValue)*100;
+    //         });
+    //     }
+    //     this.setState({totalBookValue: totalBookValue});
+    // }
 
 
+    colorSwitcher = (int) => {
+        const value = Number(int);
+        switch(value){
+            case value < 0:
+                return 'negative';
+            case value > 25 && value < 100:
+                return 'mediumPositive';
+            case value >= 100:
+                return 'largePositive';
+            default:
+                return 'smallPositive';
+        }
+    }
 
     render() {
-        const cols = [
-            {title: 'Category', dataIndex: 'category'},
-            {title: '% Portfolio', dataIndex: 'portfolio%'},
-            {title: 'Ticker', dataIndex: 'ticker'},
-            {title: 'Current Price', dataIndex: 'current'},
-            {title: 'Shares', dataIndex: 'shares'},
-            {title: 'Book Value', dataIndex: 'bookvalue'},
-            {title: 'Current Value', dataIndex: 'currentvalue'},
-            {title: 'Profit', dataIndex: 'profit'},
-            {title: '% Profit', dataIndex: 'profit%'}
+        function colorSwitcher(int) {
+            const value = Number(int);
+            if (value >= 100){
+                return 'largePositive';
+            } else if (value > 25){
+                return 'mediumPositive';
+            } else if (value < 0){
+                return 'negative';
+            } else {
+                return 'smallPositive';
+            }
+        }
+        const stockListColumns = [
+            {
+                title: 'Ticker', dataIndex: 'ticker', fixed: 'left'
+            },
+            {
+                title: 'Category', dataIndex: 'category'
+            },
+            {
+                title: '% Portfolio', dataIndex: 'portfolioPercent',
+                render: (text) => {
+                    return <span>{parseFloat(text).toFixed(2)} %</span>
+                }
+            },
+            {
+                title: 'Current Price', dataIndex: 'current',
+            },
+            {
+                title: 'Shares', dataIndex: 'shares'
+            },
+            {
+                title: 'Book Value', dataIndex: 'bookValue',
+                render: (text) => {
+                    return <span>$ {text}</span>
+                }
+            },
+            {
+                title: 'Current Value', dataIndex: 'currentValue'
+            },
+            {
+                title: 'Profit', dataIndex: 'profit'
+            },
+            {
+                title: '% Profit', dataIndex: 'profitPercent',
+                render: (text) => {
+                    return <span className={colorSwitcher(text)}>{text}%</span>;
+                }
+            },
         ]
 
         return (
@@ -35,14 +120,15 @@ export default class StockList extends Component {
               <Card title='Stocks List' extra={<AddStock/>}>
                   <Row gutter={this.state.gutterSize} justify='center'>
                       <Table
-                          columns={cols}
+                          columns={stockListColumns}
                           pagination={{pageSize: 100}}
-                          scroll={{y:240}}
+                          scroll={{x: 1500, y:240}}
+                          dataSource={this.state.data}
                           />
                   </Row>
-                  <Row>
+                  <Row justify='end' align='middle'>
                       <Col span={24}>
-                          <p>A bunch of values from the stock list above</p>
+                          <span>Total Book Value: ${this.state.totalBookValue}</span>
                       </Col>
                   </Row>
 

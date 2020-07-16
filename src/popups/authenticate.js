@@ -31,14 +31,17 @@ export default class Authenticate extends Component {
 
         try{
             if (this.props.title === 'Login'){
+
                 signin(values['emailItem'], values['passwordItem'])
                     .then((result) =>{
                         if(result){
                             sessionPersistence(this.state.remember);
                         }
                     } );
+
             } else {
                 console.log(values, 'vals');
+
                 if (values['passwordItem'] === values['confirmPasswordItem']){
                     signup(values['emailItem'], values['passwordItem'])
                         .then((result) =>{
@@ -53,27 +56,40 @@ export default class Authenticate extends Component {
                 }
             }
             message.success('Signed in as: ' + auth().currentUser.email.toString());
+
         } catch(error){
+
             console.log(error);
             this.setState({error: error.message});
-            if (this.props.title === 'Login'){message.error('Error Signing In');}
-            else {message.error('Error:'+error.message);}
+
+            if (this.props.title === 'Login'){
+                message.error('Error Signing In');
+            }
+            else {
+                message.error('Error:'+error.message);
+            }
         }
         this.hideAuthentication();
     }
 
     async providerSignIn(providerName){
+
         try{
             //TODO: fix signin session persistence
+
             signInWithProvider(providerName)
                 .then((result) =>{
                     if(result){
                         sessionPersistence(this.state.remember);
                     }
                 } );
+
             message.success('Signed in as: ' + auth().currentUser.displayName);
+
         } catch(error) {
+
             this.setState({error: error.message});
+
             if (this.props.title === 'Login'){
                 message.error('There was an error logging in.');
             } else {
@@ -159,8 +175,6 @@ export default class Authenticate extends Component {
                                 {/*TODO: add switch between login and signup*/}
 
                             </Space>
-
-
                             <br/>
                             <Button
                                 className='authenticateButton'
