@@ -3,8 +3,7 @@ import { message } from 'antd';
 
 export async function signup(email, password){
     try{
-        await auth().createUserWithEmailAndPassword(email, password);
-        return true;
+        return await auth().createUserWithEmailAndPassword(email, password);
     } catch(error){
         console.log(error);
         return false;
@@ -13,8 +12,7 @@ export async function signup(email, password){
 
 export async function signin(email, password){
     try{
-        await auth().signInWithEmailAndPassword(email, password);
-        return true;
+        return await auth().signInWithEmailAndPassword(email, password);;
     } catch(error) {
         console.log(error);
         return false;
@@ -38,8 +36,7 @@ export async function signInWithProvider(providerName){
             break;
     }
     try{
-        await auth().signInWithPopup(provider);
-        return true;
+        return await auth().signInWithPopup(provider);
     } catch(error){
         console.log(error);
         return false;
@@ -47,12 +44,12 @@ export async function signInWithProvider(providerName){
 
 }
 
-export async function sessionPersistence(remember){
+export async function sessionPersistence(credentials, remember){
     try {
         if (remember){
-            await auth().setPersistence(auth().Persistence.LOCAL);
+            await credentials.setPersistence(credentials.Persistence.LOCAL);
         } else {
-            await auth().setPersistence(auth().Persistence.SESSION);
+            await credentials.setPersistence(credentials.Persistence.SESSION);
         }
         return true;
     } catch(error) {

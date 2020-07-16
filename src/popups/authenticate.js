@@ -34,28 +34,31 @@ export default class Authenticate extends Component {
 
                 signin(values['emailItem'], values['passwordItem'])
                     .then((result) =>{
-                        if(result){
-                            sessionPersistence(this.state.remember);
+                        if(result !== false){
+                            sessionPersistence(result, this.state.remember);
+                            message.success('Signed in as: ' + auth().currentUser.email.toString());
+                        } else {
+                            message.error('Error Signing In.');
                         }
                     } );
 
             } else {
-                console.log(values, 'vals');
 
                 if (values['passwordItem'] === values['confirmPasswordItem']){
                     signup(values['emailItem'], values['passwordItem'])
                         .then((result) =>{
-                            if(result){
-                                sessionPersistence(this.state.remember);
+                            if(result !== false){
+                                sessionPersistence(result, this.state.remember);
+                                message.success('Signed in as: ' + auth().currentUser.email.toString());
+                            } else {
+                                message.error('Error Signing Up.');
                             }
-                        } );
-
+                        });
                 } else {
                     message.error('Passwords do not match.');
                     return;
                 }
             }
-            message.success('Signed in as: ' + auth().currentUser.email.toString());
 
         } catch(error){
 
@@ -79,12 +82,14 @@ export default class Authenticate extends Component {
 
             signInWithProvider(providerName)
                 .then((result) =>{
-                    if(result){
-                        sessionPersistence(this.state.remember);
+                    if(result !== false){
+                        message.success('Signed in as: ' + auth().currentUser.displayName);
+                        sessionPersistence(result, this.state.remember);
+                    } else {
+                        message.error('Error Signing in with '+ providerName);
                     }
                 } );
 
-            message.success('Signed in as: ' + auth().currentUser.displayName);
 
         } catch(error) {
 
@@ -99,6 +104,7 @@ export default class Authenticate extends Component {
         this.hideAuthentication();
     }
     hideAuthentication = () => {
+        console.log('click');
         this.setState({visible:false});
         try {
             this.formRef.current.resetFields();
@@ -119,7 +125,7 @@ export default class Authenticate extends Component {
                 <Modal
                     title={(<h2 style={{textAlign: 'center'}}>{this.props.title}</h2>)}
                     visible={this.state.visible}
-                    onClose={this.hideAuthentication}
+                    onCancel={this.hideAuthentication}
                     footer={[]}>
                     <Form
                         name='normal_login'

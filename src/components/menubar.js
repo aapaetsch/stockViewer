@@ -12,7 +12,7 @@ export default class MenuBar extends Component {
         super(props);
         this.state = {
             selected: null,
-            currentUser: null,
+            currentUser: auth().currentUser,
             separatorCol: 15,
             userCol: 2,
         }
@@ -23,16 +23,16 @@ export default class MenuBar extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.props.currentUser !== nextProps.currentUser;
+        return this.state.currentUser !== nextProps.currentUser;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        console.log(this.props.currentUser);
         this.formatMenu();
     }
 
+
     formatMenu = () => {
-        const currentUsr = auth().currentUser;
+        const currentUsr = this.props.currentUser;
         if (currentUsr === null){
             this.setState({
                 separatorCol: 15,

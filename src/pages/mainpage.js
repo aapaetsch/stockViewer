@@ -25,14 +25,35 @@ export default class MainPage extends Component {
     }
 
     //TODO: fix the double component update $$$ on server
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        let shouldUpdate = false;
-        auth().onAuthStateChanged((user) => {
-            if (user !== auth().currentUser){
-                shouldUpdate = true;
-            }
+    // shouldComponentUpdate(nextProps, nextState, nextContext) {
+    //     let shouldUpdate = false;
+    //     auth().onAuthStateChanged((user) => {
+    //         if (user !== this.state.currentUser){
+    //             shouldUpdate = true;
+    //         }
+    //     });
+    //     return shouldUpdate;
+    // }
+    //
+
+    //
+    // componentDidMount(){
+    //     this.setState({currentUser: auth().currentUser}, () => this.setUserStocks());
+    // }
+
+    componentDidMount(){
+        this.setState({
+            currentUser: auth().currentUser,
         });
-        return shouldUpdate;
+    }
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        // return this.state.currentUser !== auth().currentUser;
+        // auth().onAuthStateChanged( (user) => {
+        //     if (user !== this.state.currentUser){
+        //         return true;
+        //     }
+        // });
+        // return false;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -44,16 +65,6 @@ export default class MainPage extends Component {
         } else {
             this.resetPage(user);
         }
-    }
-
-    componentDidMount(){
-        auth().onAuthStateChanged( (user) => {
-            if (user){
-                this.setState({ currentUser: user}, () => this.setUserStocks());
-            } else {
-                this.resetPage(user);
-            }
-        });
     }
 
     resetPage = (user) => {

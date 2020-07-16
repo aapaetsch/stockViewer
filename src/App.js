@@ -60,6 +60,7 @@ export default class App extends Component {
     render() {
         return (
             <div>
+
                 <Router>
                     <Switch>
                         <Route exact path='/' component={mainpage}/>
