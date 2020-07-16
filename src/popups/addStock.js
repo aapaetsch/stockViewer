@@ -71,8 +71,6 @@ export default class AddStock extends Component{
         this.formRef.current.resetFields();
     }
 
-
-
     render(){
         const formItemLayout = {
             labelCol: { xs: { span: 12}, sm: { span: 6}},
@@ -87,6 +85,7 @@ export default class AddStock extends Component{
                 </Select>
             </Form.Item>
         )
+
         return (
           <div>
               {/*TODO: only enable add if a user is logged in.*/}
@@ -138,11 +137,11 @@ export default class AddStock extends Component{
                       </Form.Item>
                       <Form.Item
                           name='category'
-                          label='Category'
+                          label='Market Sector'
                           rules={[
                               {
                                   required: true,
-                                  message: 'Must belong to a category.',
+                                  message: 'Must belong to a Sector.',
                               }
                           ]}
                       >

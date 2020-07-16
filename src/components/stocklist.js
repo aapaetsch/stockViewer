@@ -33,35 +33,6 @@ export default class StockList extends Component {
         this.setState({data: parentData, totalBookValue: parentBookValue});
     }
 
-    //TODO: change portfolioPercent to current value
-    // async formatTableData() {
-    //     let totalBookValue = 0;
-    //     if (this.state.data !== []){
-    //         this.state.data.forEach( (position) => {
-    //             totalBookValue += position.cost;
-    //         });
-    //         this.state.data.forEach( (position) => {
-    //             position.portfolioPercent = (position.cost/totalBookValue)*100;
-    //         });
-    //     }
-    //     this.setState({totalBookValue: totalBookValue});
-    // }
-
-
-    colorSwitcher = (int) => {
-        const value = Number(int);
-        switch(value){
-            case value < 0:
-                return 'negative';
-            case value > 25 && value < 100:
-                return 'mediumPositive';
-            case value >= 100:
-                return 'largePositive';
-            default:
-                return 'smallPositive';
-        }
-    }
-
     render() {
         function colorSwitcher(int) {
             const value = Number(int);
@@ -80,7 +51,7 @@ export default class StockList extends Component {
                 title: 'Ticker', dataIndex: 'ticker', fixed: 'left'
             },
             {
-                title: 'Category', dataIndex: 'category'
+                title: 'Market Sector', dataIndex: 'category'
             },
             {
                 title: '% Portfolio', dataIndex: 'portfolioPercent',

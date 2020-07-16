@@ -1,71 +1,43 @@
 import React, { Component } from 'react';
-import { Route, BrowserRouter as Router,
-         Switch, Redirect } from 'react-router-dom';
 import { auth } from './services/firebase';
-import { LoadingScreen } from "./components/loadingscreen";
-import mainpage from "./pages/mainpage";
+import {Col, Row} from "antd";
+import MenuBar from "./components/menubar";
+import MainPage from "./pages/mainpage";
 
-export function PrivateRoute({component: Component, authenticated, ...rest}) {
-    return (
-        <Route
-            {...rest}
-            render={(props) => authenticated === true
-                ? <Component {...props}/>
-                : <Redirect to={{pathname:'/login', state:{from: props.location}}}/>}
-        />
-    );
-}
-
-function PublicRoute({ component: Component, authenticated, ...rest}){
-    console.log(authenticated);
-    return(
-        <Route
-            {...rest}
-            render={(props) => authenticated === false
-                ? <Component {...props}/>
-                : <Redirect to={'/mainpage'}/>
-            }
-        />
-    );
-}
 
 
 export default class App extends Component {
     constructor(props){
         super(props);
         this.state = {
-            authenticated: false,
-            loading: true,
+            currentUser: null,
         };
     }
 
     componentDidMount(){
         auth().onAuthStateChanged((user) => {
-            if (user) {
-                this.setState({
-                    authenticated: true,
-                    loading: false,
-                });
-            } else {
-                this.setState({
-                    authenticated: false,
-                    loading: true,
-                });
-            }
+            this.setState({currentUser: user});
         });
     }
-
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return this.state.currentUser !== auth().currentUser;
+    }
+    componentDidUpdate(){
+        this.setState({currentUser: auth().currentUser});
+    }
 
 
     render() {
         return (
             <div>
-
-                <Router>
-                    <Switch>
-                        <Route exact path='/' component={mainpage}/>
-                    </Switch>
-                </Router>
+                <Row justify='end' gutter={[0, 20]} align='middle'>
+                    {/*Login bar and ect...*/}
+                    <Col span={24} style={{background: 'white'}}>
+                        <br/>
+                        <MenuBar currentUser={this.state.currentUser}/>
+                    </Col>
+                </Row>
+                <MainPage currentUser={this.state.currentUser}/>
             </div>
         )
 
