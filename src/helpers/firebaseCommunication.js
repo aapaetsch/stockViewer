@@ -1,5 +1,5 @@
 import { auth, realTime, db} from "../services/firebase";
-import { message } from 'antd';
+import { message, notification } from 'antd';
 //this function gets all of a users stocks
 export async function getPortfolio(){
     try{
@@ -25,19 +25,18 @@ export async function getPortfolio(){
 
 
 //TODO: Create a validator for tickers instead of assuming all are valid.
-export async function addPosition(ticker, exchange, category, shares, cost){
-
+export async function addPosition(values, cost){
     const newPosition = {
-        exchange: exchange,
-        category: category,
-        shares: Number(shares),
+        exchange: values.exchange,
+        category: values.category,
+        shares: Number(values.shares),
         cost: Number(cost),
         dateAdded: [new Date()]
     }
 
-    let tickerExists = await isTickerNew(ticker);
+    let tickerExists = await isTickerNew(values.ticker);
     if (!tickerExists){
-        let success = await addTicker(ticker, exchange);
+        let success = await addTicker(values.ticker, values.exchange);
     }
 
     let userID = await auth().currentUser.uid.toString();
@@ -52,7 +51,7 @@ export async function addPosition(ticker, exchange, category, shares, cost){
             return successfulCreation;
         }
     }
-    return await updatePosition(userID, ticker, newPosition);
+    return await updatePosition(userID, values.ticker, newPosition);
 }
 
 async function updatePosition(userID, ticker, newPosition){
@@ -66,6 +65,7 @@ async function updatePosition(userID, ticker, newPosition){
             let data = doc.data();
             data.dateAdded.push(new Date());
             const updatedPosition = {
+                exchange: newPosition.exchange,
                 category: newPosition.category,
                 shares: newPosition.shares + data.shares,
                 cost: newPosition.cost + data.cost,
@@ -134,5 +134,6 @@ export async function getAllTickers(){
         console.log(doc.id, '==>', doc.data());
     });
     return snapshot;
-
 }
+
+

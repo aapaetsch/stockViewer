@@ -46,6 +46,11 @@
   transform: translateX(-50%) translateY(-50%);
 }
 
+.mainDiv {
+  text-align: center;
+  display: inline-block;
+}
+
 .site-card-border-less-wrapper {
   background: #ececec;
 }

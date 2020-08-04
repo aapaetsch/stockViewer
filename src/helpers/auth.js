@@ -1,25 +1,32 @@
 import { auth } from '../services/firebase';
+import firebase from 'firebase';
 import { message } from 'antd';
 
-export async function signup(email, password){
+export async function signup(email, password, remember){
     try{
-        return await auth().createUserWithEmailAndPassword(email, password);
+        return auth().setPersistence(await getPersistence(remember))
+            .then( async () => {
+                return await auth().createUserWithEmailAndPassword(email, password);
+            });
     } catch(error){
         console.log(error);
         return false;
     }
 }
 
-export async function signin(email, password){
+export async function signin(email, password, remember){
     try{
-        return await auth().signInWithEmailAndPassword(email, password);;
+        return auth().setPersistence(await getPersistence(remember))
+            .then( async () => {
+                return await auth().signInWithEmailAndPassword(email, password);
+            });
     } catch(error) {
         console.log(error);
         return false;
     }
 }
 
-export async function signInWithProvider(providerName){
+export async function signInWithProvider(providerName, remember){
     let provider;
     switch(providerName){
         case 'google':
@@ -36,7 +43,10 @@ export async function signInWithProvider(providerName){
             break;
     }
     try{
-        return await auth().signInWithPopup(provider);
+        return auth().setPersistence(await getPersistence(remember))
+            .then( async () => {
+                return await auth().signInWithPopup(provider);
+            });
     } catch(error){
         console.log(error);
         return false;
@@ -44,19 +54,11 @@ export async function signInWithProvider(providerName){
 
 }
 
-export async function sessionPersistence(credentials, remember){
-    try {
-        if (remember){
-            await credentials.setPersistence(credentials.Persistence.LOCAL);
-        } else {
-            await credentials.setPersistence(credentials.Persistence.SESSION);
-        }
-        return true;
-    } catch(error) {
-        console.log('persistence error:', error);
-        message.error('Error login will not be remembered.');
-        return false;
+async function getPersistence(remember){
+    if (remember){
+        return auth.Auth.Persistence.LOCAL;
     }
+    return auth.Auth.Persistence.SESSION;
 }
 
 export async function logout(){

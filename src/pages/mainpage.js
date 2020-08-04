@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import {Row, Col, Button, message, notification, Skeleton, Card} from 'antd';
-import StockList from "../components/stocklist";
+import StockList from "../components/Portfolio/stocklist";
 import MenuBar from "../components/menubar";
 import 'antd/dist/antd.css';
 import '../App.css';
-import LocationDonut from "../components/locationDonut";
-import CategoryRadar from "../components/categoryRadar";
+import LocationDonut from "../components/Portfolio/locationDonut";
+import CategoryRadar from "../components/Portfolio/categoryRadar";
 import { auth } from '../services/firebase';
 import {getPortfolio} from "../helpers/firebaseCommunication";
 
@@ -19,9 +19,17 @@ export default class MainPage extends Component {
             currentUser: null,
             data: [],
             totalBookValue: 0,
+            marketSectors: ['Technology', 'Communication', 'Energy', 'Financial',
+                'Healthcare','Industrial', 'Consumer Staple','Consumer Discretionary',
+                'International','Misc', 'Utilities', 'Materials',  'Real Estate'],
+            exchangeLocation: {'xtse':'Canada', 'US':'US'},
         }
         this.stockListComponent = React.createRef();
         this.formatStockData = this.formatStockData.bind(this);
+        this.addStockData = this.addStockData.bind(this);
+        // this.categoryRadarComponent = React.createRef();
+        // this.locationDonutComponent = React.createRef();
+        // this.updateChildren = this.updateChildren.bind(this);
     }
 
 
@@ -31,17 +39,20 @@ export default class MainPage extends Component {
         });
     }
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.props !== nextProps;
+        return this.props !== nextProps || this.state !== nextState;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const user = this.props.currentUser;
-        this.setState({currentUser: user});
-        if (user !== null){
-            this.setUserStocks();
-        } else {
-            this.resetPage(user);
+        if (this.props !== prevProps){
+            this.setState({currentUser: this.props.currentUser}, () =>{
+                if (this.state.currentUser !== null){
+                    this.setUserStocks();
+                } else {
+                    this.resetPage(this.state.user);
+                }
+            });
         }
+
     }
 
     resetPage = (user) => {
@@ -50,18 +61,20 @@ export default class MainPage extends Component {
             currentUser: user,
             totalBookValue: 0,
             stocks: null,
-        }, () => {
-            this.stockListComponent.current.updateStocks(this.state.data, this.state.totalBookValue);
         });
+    // , () => {
+    //         this.stockListComponent.current.updateStocks(this.state.data, this.state.totalBookValue);
+    //     // }
     }
 
     setUserStocks = () => {
         getPortfolio().then( (result) => {
             if (result !== null){
                 this.setState({stocks: result}, ()=>{
-                    this.formatStockData().then( (stockResult) => {
-                        this.stockListComponent.current.updateStocks(stockResult, this.state.totalBookValue);
-                        this.setState({data: stockResult});
+                    this.formatStockData().then( (dataResult) => {
+                        this.setState({data: dataResult}, () => console.log(this.state.data));
+                        // this.stockListComponent.current.updateStocks(dataResult, this.state.totalBookValue);
+
                     });
                 });
             } else {
@@ -89,7 +102,6 @@ export default class MainPage extends Component {
             const stock = {
                 ticker: doc.id,
                 shares: data.shares,
-                exchange: data.exchange,
                 category: data.category,
                 bookValue: data.cost,
                 originalPercent: (data.cost/totalBookValue) * 100,
@@ -100,6 +112,54 @@ export default class MainPage extends Component {
         return stockData;
     }
 
+    async addStockData(values, totalCost){
+        try{
+            let newData = [...this.state.data];
+            const cost = Number(totalCost);
+            let newShares = Number(values.shares);
+            const newTotalValue = Number(this.state.totalBookValue) + cost;
+            let stockExists = false;
+            let newBookValue = cost;
+            let payload = [];
+
+            for (let i = 0; i < this.state.data.length; i++){
+                if (this.state.data[i].ticker === values.ticker){
+
+                    stockExists = i;
+                    newBookValue = cost + Number(this.state.data[i].bookValue);
+                    newShares += Number(this.state.data[i].shares);
+                    payload = [values.ticker,
+                        [this.state.data[i].shares, values.shares], newBookValue,
+                        [this.state.data[i].category, values.category]];
+
+                } else {
+                    newData[i].originalPercent = (this.state.data[i].bookValue/newTotalValue)*100;
+                    newData[i].portfolioPercent = (this.state.data[i].bookValue/newTotalValue)*100;
+                }
+            }
+            let stock = {
+                ticker: values.ticker,
+                shares: newShares,
+                bookValue: newBookValue,
+                category: values.category,
+                originalPercent: (newBookValue / newTotalValue) * 100,
+                portfolioPercent: (newBookValue / newTotalValue) * 100,
+            }
+
+            if (stockExists !== false){
+                newData[stockExists] = stock;
+            } else {
+                newData.push(stock);
+            }
+
+            this.setState({data: newData, totalBookValue: newTotalValue});
+            return [true, payload];
+
+        } catch(error){
+            console.log(error);
+            return [false, null];
+        }
+    }
 
     render() {
         return (
@@ -109,7 +169,10 @@ export default class MainPage extends Component {
                 <Row justify='center' gutter={this.state.borders}>
                     <Col span={20}>
                         <StockList
-                            ref={this.stockListComponent}
+                            // ref={this.stockListComponent}
+                            updateParentData={this.addStockData}
+                            data={this.state.data}
+                            totalBookValue={this.state.totalBookValue}
                         />
                     </Col>
                 </Row>
@@ -121,11 +184,11 @@ export default class MainPage extends Component {
 
                         </Card>
                     </Col>
-                    <Col className='gutter-row' span={9}>
-                        <CategoryRadar data={this.state.data}/>
+                    <Col className='gutter-row' span={8}>
+                        <CategoryRadar data={this.state.data} marketSectors={this.state.marketSectors}/>
                     </Col>
-                    <Col className='gutter-row' span={4}>
-                        {/*<LocationDonut/>*/}
+                    <Col className='gutter-row' span={6}>
+                        <LocationDonut data={this.state.data} exchangeLocation={this.state.exchangeLocation}/>
                     </Col>
                 </Row>
             </div>

@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { Card, Button, Row, Col, Table } from 'antd';
-import { auth } from '../services/firebase'
-import AddStock from "../popups/addStock";
+import { auth } from '../../services/firebase';
+ import AddStock from "../../popups/addStock";
 import 'antd/dist/antd.css';
-import '../App.css';
-import '../styles/stocklist.css';
+import '../../App.css';
+import '../../styles/portfolio.css';
 
 
 export default class StockList extends Component {
@@ -13,25 +13,29 @@ export default class StockList extends Component {
         this.state = {
             showLoading: false,
             gutterSize: [10,10],
-            data: [],
-            totalBookValue: 0,
+            // data: [],
+            // totalBookValue: 0,
+
         }
+        // this.updateStocks = this.updateStocks.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext){
-        return this.state.data !== nextState.data;
+        return this.props !== nextProps || this.state.showLoading !== nextState.showLoading;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot){
-        //check if there has been an update in the stocks
-        // if (this.state.data !== []){
-        //     this.formatTableData();
-        // }
-    }
+        if (this.props.data.length === 0 && auth().currentUser !== null) {
+            this.setState({showLoading: true});
+        } else {
+            this.setState({showLoading: false})
+        }
 
-    updateStocks = (parentData, parentBookValue) =>{
-        this.setState({data: parentData, totalBookValue: parentBookValue});
     }
+    //
+    // async updateStocks(parentData, parentBookValue) {
+    //     this.setState({data: parentData, totalBookValue: parentBookValue});
+    // }
 
     render() {
         function colorSwitcher(int) {
@@ -88,18 +92,20 @@ export default class StockList extends Component {
         return (
           <div>
 
-              <Card title='Stocks List' extra={<AddStock/>}>
+              <Card title='Stocks List' extra={<AddStock updateMainData={this.props.updateParentData}/>}>
                   <Row gutter={this.state.gutterSize} justify='center'>
                       <Table
                           columns={stockListColumns}
                           pagination={{pageSize: 100}}
                           scroll={{x: 1500, y:240}}
-                          dataSource={this.state.data}
+                          dataSource={this.props.data}
+                          loading={this.state.showLoading}
+                          size='small'
                           />
                   </Row>
                   <Row justify='end' align='middle'>
                       <Col span={24}>
-                          <span>Total Book Value: ${this.state.totalBookValue}</span>
+                          <span>Total Book Value: ${this.props.totalBookValue}</span>
                       </Col>
                   </Row>
 
