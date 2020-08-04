@@ -54,7 +54,9 @@ export default class Portfolio extends Component {
     }
 
     formatData(positions) {
-        console.log(positions);
+        positions.forEach((position) => {
+            console.log(position);
+        })
     }
 
 

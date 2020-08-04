@@ -37,29 +37,20 @@ export default class AddStock extends Component{
             message.loading("Add Stock in Progress...", 3);
             addPosition(values, totalCost)
                 .then((success) => {
-                    if (success){
-                        this.props.updateMainData(values, totalCost)
-                            .then( (result) => {
-                                if (result[0]) {
-                                    if (result[1].length === 0){
-                                        notification['success']({
-                                            message: 'Added Stock Successfully',
-                                            description: this.notificationContent(values, totalCost)
-                                        });
-                                    } else {
-                                        notification['success']({
-                                            message: 'Updated Stock Successfully',
-                                            description: this.updatePositionContent(result[1])
-                                        });
-                                    }
-                                } else {
-                                    notification['error']({
-                                        message: 'Error adding stock locally',
-                                        description: "Please refresh your browser"
-                                    });
-                                }
+                    console.log(success);
+                    if (success[0]){
+                        //todo: fix the alert triggers. 
+                        if (success[1] === 'add'){
+                            notification['success']({
+                                message: 'Added Stock Successfully',
+                                description: this.notificationContent(values, totalCost)
                             });
-
+                        } else {
+                            notification['success']({
+                                message: 'Updated Stock Successfully',
+                                description: this.updatePositionContent()
+                            });
+                        }
                     } else {
                         message.error('There was an error adding the position.')
                     }
@@ -86,7 +77,7 @@ export default class AddStock extends Component{
                     <span>Sector: {payload[3][0]} => {payload[3][1]}</span><br/>
                 </div>)
               }
-              Shares: {payload[1][0]} => {Number(payload[1][0]) + Number(payload[1][1])}<br/>
+              Shares: {payload[1][0]} => {payload[1][1]}<br/>
               Book Value: ${payload[2]}
           </span>
         );

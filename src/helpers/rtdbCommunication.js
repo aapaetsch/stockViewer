@@ -5,7 +5,7 @@ const stonkApi = 'http://127.0.0.1:5000/stonksAPI/v1'
 export async function addPosition(values, cost){
     const currentUser = auth().currentUser;
     if (currentUser === null){
-        return false;
+        return [false, null];
     }
     const uid = currentUser.uid;
     //TODO: Add Check for valid ticker
@@ -23,19 +23,25 @@ export async function updatePosition(uid, values, cost){
         try {
             let prevTransactions = doc.val().transactions;
             let prevShares = doc.val().shares;
+            let prevSector = doc.val().category;
+            let newCost = Number(cost) + Number(doc.val().cost);
+            let newShares = Number(prevShares.shares) + Number(values.shares);
+
+
             prevTransactions.push({transactionTime: new Date(),
                 transactionType: `${values.shares} added @ $${Number(cost)/Number(values.shares)} ea`});
 
             const updatedPosition = {
                 category: values.category,
-                shares: Number(prevShares.shares) + Number(values.shares),
-                cost: Number(cost) + Number(doc.val().cost),
+                shares: newShares,
+                cost: newCost,
                 transactions: prevTransactions
             }
-            return await docRef.update(updatedPosition);
+            let payload = [values.ticker.toUpperCase(), [prevShares, newShares], newCost, [prevSector, values.category]]
+            return [await docRef.update(updatedPosition), 'update', payload];
         } catch(error) {
             console.log(error);
-            return false;
+            return [false, 'update', null];
         }
     } else {
         //We must set a new document
@@ -47,10 +53,10 @@ export async function updatePosition(uid, values, cost){
                 transactions: [{transactionTime: new Date(),
                     transactionType: `${values.shares} shares added @ $${Number(cost)/Number(values.shares)} ea` }],
             }
-            return await docRef.set(newPosition);
+            return [await docRef.set(newPosition), 'add'];
         } catch(error) {
             console.log(error);
-            return false;
+            return [false, 'add'];
         }
     }
 
