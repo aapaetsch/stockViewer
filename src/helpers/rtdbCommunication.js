@@ -21,24 +21,31 @@ export async function updatePosition(uid, values, cost){
     if (doc.exists()) {
         //If the doc exists we must update
         try {
-            let prevTransactions = doc.val().transactions;
+            // let prevTransactions = doc.val().transactions;
             let prevShares = doc.val().shares;
             let prevSector = doc.val().category;
             let newCost = Number(cost) + Number(doc.val().cost);
-            let newShares = Number(prevShares.shares) + Number(values.shares);
+            let newShares = Number(prevShares) + Number(values.shares);
+            console.log(prevShares, prevSector, newCost, newShares);
 
 
-            prevTransactions.push({transactionTime: new Date(),
-                transactionType: `${values.shares} added @ $${Number(cost)/Number(values.shares)} ea`});
+            // prevTransactions.push({transactionTime: new Date(),
+            //     transactionType: `${values.shares} added @ $${Number(cost)/Number(values.shares)} ea`});
 
             const updatedPosition = {
                 category: values.category,
                 shares: newShares,
-                cost: newCost,
-                transactions: prevTransactions
+                cost: newCost
             }
             let payload = [values.ticker.toUpperCase(), [prevShares, newShares], newCost, [prevSector, values.category]]
-            return [await docRef.update(updatedPosition), 'update', payload];
+            return docRef.update(updatedPosition).then( (error) => {
+                let updateSuccess = true;
+                if (error){
+                    updateSuccess = false;
+                }
+                return [updateSuccess, 'update', payload];
+            });
+
         } catch(error) {
             console.log(error);
             return [false, 'update', null];
@@ -46,14 +53,23 @@ export async function updatePosition(uid, values, cost){
     } else {
         //We must set a new document
         try {
+            const perShare = (Number(cost)/Number(values.shares)).toFixed(4);
             const newPosition = {
                 category: values.category,
                 shares: Number(values.shares),
                 cost: Number(cost),
-                transactions: [{transactionTime: new Date(),
-                    transactionType: `${values.shares} shares added @ $${Number(cost)/Number(values.shares)} ea` }],
+                transactions: {transactionTime: new Date(),
+                    transactionType: `${values.shares} shares added @ $${perShare} ea` },
             }
-            return [await docRef.set(newPosition), 'add'];
+            return docRef.set(newPosition).then( (error) => {
+               let addSuccess = true;
+               if (error){
+                   console.log(error);
+                   addSuccess = false;
+               }
+               return [addSuccess, 'add'];
+            });
+
         } catch(error) {
             console.log(error);
             return [false, 'add'];

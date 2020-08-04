@@ -39,7 +39,7 @@ export default class AddStock extends Component{
                 .then((success) => {
                     console.log(success);
                     if (success[0]){
-                        //todo: fix the alert triggers. 
+                        //todo: fix the alert triggers.
                         if (success[1] === 'add'){
                             notification['success']({
                                 message: 'Added Stock Successfully',
@@ -48,7 +48,7 @@ export default class AddStock extends Component{
                         } else {
                             notification['success']({
                                 message: 'Updated Stock Successfully',
-                                description: this.updatePositionContent()
+                                description: this.updatePositionContent(success[2])
                             });
                         }
                     } else {
@@ -62,7 +62,7 @@ export default class AddStock extends Component{
     notificationContent = (values, totalCost) =>{
         return (
             <span>
-                Ticker: {values.ticker.toUpperCase()}.{values.exchange.toUpperCase()}<br/>
+                Ticker: {values.ticker.toUpperCase()}<br/>
                 Sector: {values.category}<br/>
                 Cost: ${totalCost}
             </span>
