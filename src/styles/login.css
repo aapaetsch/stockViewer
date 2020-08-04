@@ -1,6 +1,19 @@
 .authenticateButton{
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
     color: white;
-    text-align: center;
     width: 50%;
+}
+
+.linkHover {
+    color: dodgerblue;
+    text-decoration: underline;
+}
+
+.linkHover:hover {
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
 }

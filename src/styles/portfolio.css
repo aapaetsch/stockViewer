@@ -1,5 +1,12 @@
-.gutter-box{
+.gutter-row{
     padding: 3px 3px;
+    background: #bfbfbf;
+}
+
+.portfolioBackground {
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 72px;
     background: #bfbfbf;
 }
 

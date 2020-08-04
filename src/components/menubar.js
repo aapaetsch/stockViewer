@@ -1,88 +1,108 @@
 import React, { Component } from 'react';
-import { Row, Col, Space, Avatar, Button, message} from 'antd';
+import { NavLink } from 'react-router-dom';
+import { Row, Col, Space, Avatar, Button, Input} from 'antd';
 import { logout } from '../helpers/auth';
 import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
-import '../styles/stocklist.css';
 import 'antd/dist/antd.css';
-import {auth} from "../services/firebase";
+
+const { Search } = Input;
 
 export default class MenuBar extends Component {
     constructor(props){
         super(props);
         this.state = {
-            selected: null,
-            currentUser: auth().currentUser,
             separatorCol: 15,
             userCol: 2,
+            menuBarGutter: 8,
+            showAuthenticate: false,
+            authenticateType: null,
         }
-    }
-
-    componentDidMount(){
-        this.formatMenu();
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return this.state.currentUser !== nextProps.currentUser;
+        return this.props.currentUser !== nextProps.currentUser || this.state !== nextState;
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        this.formatMenu();
+    showAuthenticate = (type) => {
+        this.setState({showAuthenticate: true, authenticateType:type});
+        console.log('click');
+    }
+    hideAuthenticate = () => {
+        this.setState({showAuthenticate: false, authenticateType: null});
     }
 
-
-    formatMenu = () => {
-        console.log(this.props.currentUser);
-        const currentUsr = this.props.currentUser;
-        if (currentUsr === null){
-            this.setState({
-                separatorCol: 15,
-                userCol: 2,
-                currentUser: currentUsr,
-            });
+    switchAuthenticateType = () => {
+        if (this.state.authenticateType === 'Login'){
+            this.setState({authenticateType: 'Sign Up'});
         } else {
-            this.setState({
-                separatorCol: 14,
-                userCol: 3,
-                currentUser: currentUsr,
-            });
+            this.setState({authenticateType: 'Login'});
         }
     }
 
+
     render () {
+        function registeredUser(user) {
+            return (
+                <Space size='large'>
+                    <Avatar
+                        src={user.photoURL}
+                        icon={<UserOutlined/>}
+                        />
+                        <span style={{color: 'white'}}>
+                            { user.displayName === null
+                                ? (user.email)
+                                : (user.displayName)
+                            } &nbsp; &nbsp;
+                        </span>
+                    <Button type='primary' icon={<ImportOutlined/>} onClick={logout}>
+                        <NavLink to='/welcome' style={{color: 'white'}}>
+                            Logout
+                        </NavLink>
+                    </Button>
+                </Space>
+            );
+        }
+
+
         return(
-          <Row justify='end' align='middle' gutter={[5,5]}>
-              <Col span={2}/>
-              <Col span={2}>
-                  <h2>
-                      Stonks
-                  </h2>
-              </Col>
-              <Col span={this.state.separatorCol}/>
-              <Col className='gutter-row' span={this.state.userCol}>
-                  { this.state.currentUser === null ?
-                      (<Space>
-                          <Authenticate title={'Login'}/>
-                          <Authenticate title={'Sign Up'}/>
-                      </Space>)
-                      :
-                      (
-                          <Space>
-                            <Avatar
-                                src={this.state.currentUser.photoURL}
-                                icon={<UserOutlined/>}/>
-                                { this.state.currentUser.displayName === null ?
-                                    (this.state.currentUser.email):(this.state.currentUser.displayName)
-                                }&nbsp;&nbsp;
-                                <Button type='primary' icon={<ImportOutlined/>} onClick={logout}>
-                                    Logout
+            <Row align='center' justify='space-between' gutter={this.state.menuBarGutter}>
+                <Col flex={3}>
+                    {/*Add logo??*/}
+                    <h2 style={{color:'white'}}>
+                        Stonks
+                    </h2>
+                </Col>
+                <Col flex={6} offset={1}>
+                    <Search
+                        placeholder="Enter a Ticker"
+                        style={{width: '100%', paddingTop: '4%'}}
+                        onSearch={ (value) => console.log('search bar:',value)}
+                        enterButton/>
+                </Col>
+                <Col flex={6} offset={4}>
+                {/*Login/ authenticated user*/}
+                    { this.props.currentUser === null
+                        ? (
+                            <Space>
+                                <Button onClick={() => this.showAuthenticate('Login')}>
+                                    Login
+                                </Button>
+                                <Button onClick={() => this.showAuthenticate('Sign Up')}>
+                                    Sign Up
                                 </Button>
                             </Space>
-                      )
-                  }
-              </Col>
-              <Col span={3}/>
-          </Row>
+                            )
+                        : (registeredUser(this.props.currentUser))
+                    }
+                </Col>
+                <Authenticate
+                    visible={this.state.showAuthenticate}
+                    title={this.state.authenticateType}
+                    closeAuthenticate={this.hideAuthenticate}
+                    changeAuthenticateType={this.switchAuthenticateType}
+                />
+            </Row>
         );
     }
 }

@@ -1,8 +1,10 @@
 import React, { Component, createRef } from 'react';
 import {Modal, Button, Form, Input, Select, notification, Space, Col, Row, message} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import '../styles/stocklist.css';
-import {getAllTickers, addPosition} from "../helpers/firebaseCommunication";
+import '../styles/portfolio.css';
+// import {getAllTickers, addPosition} from "../helpers/firebaseCommunication";
+import { addPosition } from "../helpers/rtdbCommunication";
+
 const { Option } = Select;
 
 export default class AddStock extends Component{
@@ -19,6 +21,7 @@ export default class AddStock extends Component{
 
     async addStockOk(values) {
         console.log(values);
+        values.ticker = values.ticker.toUpperCase();
         //check the values to see if they are proper
         if (values.shares.toString().includes('.')){
             message.error('Number of shares must be whole numbers.', 15)
@@ -27,18 +30,27 @@ export default class AddStock extends Component{
         } else {
             let totalCost;
             if (values.costType === 'perShare'){
-                totalCost = values.cost * values.shares;
+                totalCost = Number(values.cost) * Number(values.shares);
             } else {
-                totalCost = values.cost;
+                totalCost = Number(values.cost);
             }
             message.loading("Add Stock in Progress...", 3);
-            addPosition(values.ticker.toUpperCase(), values.exchange, values.category, values.shares, totalCost)
+            addPosition(values, totalCost)
                 .then((success) => {
-                    if (success){
-                        notification['success']({
-                            message: 'Added Stock Successfully',
-                            description: this.notificationContent(values, totalCost)
-                        });
+                    console.log(success);
+                    if (success[0]){
+                        //todo: fix the alert triggers.
+                        if (success[1] === 'add'){
+                            notification['success']({
+                                message: 'Added Stock Successfully',
+                                description: this.notificationContent(values, totalCost)
+                            });
+                        } else {
+                            notification['success']({
+                                message: 'Updated Stock Successfully',
+                                description: this.updatePositionContent(success[2])
+                            });
+                        }
                     } else {
                         message.error('There was an error adding the position.')
                     }
@@ -50,13 +62,27 @@ export default class AddStock extends Component{
     notificationContent = (values, totalCost) =>{
         return (
             <span>
-                Ticker: {values.ticker.toUpperCase()}.{values.exchange.toUpperCase()}<br/>
-                Category: {values.category}<br/>
-                Cost: {totalCost}
+                Ticker: {values.ticker.toUpperCase()}<br/>
+                Sector: {values.category}<br/>
+                Cost: ${totalCost}
             </span>
         );
     }
+    updatePositionContent = (payload) =>{
+        return (
+          <span>
+              Ticker: {payload[0].toUpperCase()}<br/>
+              {(payload[3][0] !== payload[3][1]) &&
+                (<div>
+                    <span>Sector: {payload[3][0]} => {payload[3][1]}</span><br/>
+                </div>)
+              }
+              Shares: {payload[1][0]} => {payload[1][1]}<br/>
+              Book Value: ${payload[2]}
+          </span>
+        );
 
+}
 
     async addStockCancel() {
         this.hideAddStock();
@@ -67,8 +93,13 @@ export default class AddStock extends Component{
     }
 
     hideAddStock = () => {
+        try{
+            this.formRef.current.resetFields();
+        } catch(error){
+            console.log(error);
+        }
         this.setState({visible: false});
-        this.formRef.current.resetFields();
+
     }
 
     render(){
@@ -107,6 +138,7 @@ export default class AddStock extends Component{
                       ref={this.formRef}
                       onFinish={this.addStockOk}
                   >
+                      <p>Ticker should be in form "Ticker.Exchange" i.e. "Shop.TO". ETF's are not currently supported.</p>
                       <Form.Item
                           name='ticker'
                           label='Ticker'
@@ -119,22 +151,22 @@ export default class AddStock extends Component{
                       >
                           <Input />
                       </Form.Item>
-                      <Form.Item
-                          name='exchange'
-                          label='Stock Exchange'
-                          rules={[
-                              {
-                                  required:true,
-                                  message: 'Select an Exchange'
-                              }
-                          ]}
-                      >
-                          <Select>
-                              <Option value='xtsx'>TSX</Option>
-                              {/*<Option value='tsxMutual'>Mutual Fund TSX</Option>*/}
-                              <Option value='us'>Any US Exchange</Option>
-                          </Select>
-                      </Form.Item>
+                      {/*<Form.Item*/}
+                      {/*    name='exchange'*/}
+                      {/*    label='Stock Exchange'*/}
+                      {/*    rules={[*/}
+                      {/*        {*/}
+                      {/*            required:true,*/}
+                      {/*            message: 'Select an Exchange'*/}
+                      {/*        }*/}
+                      {/*    ]}*/}
+                      {/*>*/}
+                      {/*    <Select>*/}
+                      {/*        <Option value='xtse'>TSX</Option>*/}
+                      {/*        /!*<Option value='tsxMutual'>Mutual Fund TSX</Option>*!/*/}
+                      {/*        <Option value='US'>Any US Exchange</Option>*/}
+                      {/*    </Select>*/}
+                      {/*</Form.Item>*/}
                       <Form.Item
                           name='category'
                           label='Market Sector'

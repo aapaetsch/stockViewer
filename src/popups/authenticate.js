@@ -8,7 +8,7 @@ import { auth } from 'firebase';
 import { GithubFilled, ChromeFilled, UserOutlined, LockOutlined, LockTwoTone } from '@ant-design/icons';
 import 'antd/dist/antd.css';
 import '../styles/login.css';
-import {sessionPersistence, signInWithProvider, signin, signup} from "../helpers/auth";
+import { signInWithProvider, signin, signup} from "../helpers/auth";
 
 
 export default class Authenticate extends Component {
@@ -17,13 +17,16 @@ export default class Authenticate extends Component {
         this.state = {
             error: null,
             remembered: false,
-            visible: false,
         }
         this.handleSubmit = this.handleSubmit.bind(this);
         this.providerSignIn = this.providerSignIn.bind(this);
         this.formRef = createRef();
-
     }
+
+    shouldComponentUpdate(nextProps){
+        return this.props !== nextProps;
+    }
+
 
     async handleSubmit(values){
         this.setState({error:''});
@@ -32,10 +35,9 @@ export default class Authenticate extends Component {
         try{
             if (this.props.title === 'Login'){
 
-                signin(values['emailItem'], values['passwordItem'])
+                signin(values['emailItem'], values['passwordItem'], this.state.remembered)
                     .then((result) =>{
                         if(result !== false){
-                            sessionPersistence(result, this.state.remember);
                             message.success('Signed in as: ' + auth().currentUser.email.toString());
                         } else {
                             message.error('Error Signing In.');
@@ -45,10 +47,9 @@ export default class Authenticate extends Component {
             } else {
 
                 if (values['passwordItem'] === values['confirmPasswordItem']){
-                    signup(values['emailItem'], values['passwordItem'])
+                    signup(values['emailItem'], values['passwordItem'], this.state.remembered)
                         .then((result) =>{
                             if(result !== false){
-                                sessionPersistence(result, this.state.remember);
                                 message.success('Signed in as: ' + auth().currentUser.email.toString());
                             } else {
                                 message.error('Error Signing Up.');
@@ -79,12 +80,10 @@ export default class Authenticate extends Component {
 
         try{
             //TODO: fix signin session persistence
-
-            signInWithProvider(providerName)
+            signInWithProvider(providerName, this.state.remembered)
                 .then((result) =>{
                     if(result !== false){
                         message.success('Signed in as: ' + auth().currentUser.displayName);
-                        sessionPersistence(result, this.state.remember);
                     } else {
                         message.error('Error Signing in with '+ providerName);
                     }
@@ -105,7 +104,7 @@ export default class Authenticate extends Component {
     }
     hideAuthentication = () => {
         console.log('click');
-        this.setState({visible:false});
+        this.props.closeAuthenticate();
         try {
             this.formRef.current.resetFields();
         } catch(error){
@@ -117,16 +116,29 @@ export default class Authenticate extends Component {
         const onFinishFailed = errorInfo => {
             message.error('Error in Authentication');
         }
+        function switchScreen(linkName, switchType) {
+            let displayText = 'Already Registered? ';
+            let linkText = 'Login';
+            if (linkName === 'Login'){
+                linkText = 'Sign Up';
+                displayText = "Don't have an account? ";
+            }
+            return (
+              <div style={{textAlign: 'center'}}>
+                  {displayText}&nbsp;
+                  <span onClick={() => switchType()} className='linkHover'>
+                      {linkText}
+                  </span>
+              </div>
+            );
+        }
         return(
             <div>
-                <Button type='primary' onClick={() => this.setState({visible:true})}>
-                    {this.props.title}
-                </Button>
                 <Modal
                     title={(<h2 style={{textAlign: 'center'}}>{this.props.title}</h2>)}
-                    visible={this.state.visible}
+                    visible={this.props.visible}
                     onCancel={this.hideAuthentication}
-                    footer={[]}>
+                    footer={switchScreen(this.props.title, this.props.changeAuthenticateType)}>
                     <Form
                         name='normal_login'
                         className='login-form'
@@ -171,17 +183,11 @@ export default class Authenticate extends Component {
                             ) : (<div/>)
                         }
                         <div id='signInGroup' style={{textAlign:'center'}}>
-                            <Space>
-                                <Checkbox
-                                    onChange={() => this.setState({remember: !this.state.remember})}
-                                >
-                                    Remember Me
-                                </Checkbox>
-                                &nbsp;
-                                {/*TODO: add switch between login and signup*/}
-
-                            </Space>
-                            <br/>
+                            <Checkbox
+                                onChange={() => this.setState({remember: !this.state.remember})}
+                            >
+                                Remember Me
+                            </Checkbox>
                             <Button
                                 className='authenticateButton'
                                 style={{backgroundColor: '#389e0d'}}
@@ -189,7 +195,7 @@ export default class Authenticate extends Component {
                             >
                                 {this.props.title}
                             </Button>
-                            <h3>OR</h3><br/>
+                            <h3>OR</h3>
                             <Button
                                 className='authenticateButton'
                                 type='primary'
@@ -198,7 +204,6 @@ export default class Authenticate extends Component {
                             >
                                 Continue with Github
                             </Button>
-                            <br/>
                             <Button
                                 className='authenticateButton'
                                 type='primary'
