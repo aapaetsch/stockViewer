@@ -1,6 +1,8 @@
 import { auth, realTime } from '../services/firebase';
 import { message } from 'antd';
-const stonkApi = 'http://127.0.0.1:5000/stonksAPI/v1'
+const stonkApi = 'http://localhost:5000/stonksAPI/v1'
+
+//TODO: add rollback for failed transactions
 
 export async function addPosition(values, cost){
     const currentUser = auth().currentUser;
@@ -9,73 +11,112 @@ export async function addPosition(values, cost){
     }
     const uid = currentUser.uid;
     //TODO: Add Check for valid ticker
+    const response = await fetch(`${stonkApi}/current/single?ticker=${values.ticker}`);
+    const data = await response.json();
+    let badData = true;
+    if (data){
+        badData = false;
+    }
+    if (badData){
+        return false
+    }
 
-    return await updatePosition(uid, values, cost);
-}
-
-export async function updatePosition(uid, values, cost){
-    //This function is only for increasing the shares in a position/ adding a new position
     const ticker = values.ticker.replace('.', '_');
     const docRef = realTime.ref('/portfolios/'+uid+'/'+ticker);
-    const doc = await docRef.once('value').then((response) => {return response});
-    if (doc.exists()) {
-        //If the doc exists we must update
-        try {
-            // let prevTransactions = doc.val().transactions;
-            let prevShares = doc.val().shares;
-            let prevSector = doc.val().category;
-            let newCost = Number(cost) + Number(doc.val().cost);
-            let newShares = Number(prevShares) + Number(values.shares);
-            console.log(prevShares, prevSector, newCost, newShares);
+    const doc = await docRef.once('value');
 
-
-            // prevTransactions.push({transactionTime: new Date(),
-            //     transactionType: `${values.shares} added @ $${Number(cost)/Number(values.shares)} ea`});
-
-            const updatedPosition = {
-                category: values.category,
-                shares: newShares,
-                cost: newCost
-            }
-            let payload = [values.ticker.toUpperCase(), [prevShares, newShares], newCost, [prevSector, values.category]]
-            return docRef.update(updatedPosition).then( (error) => {
-                let updateSuccess = true;
-                if (error){
-                    updateSuccess = false;
-                }
-                return [updateSuccess, 'update', payload];
-            });
-
-        } catch(error) {
-            console.log(error);
-            return [false, 'update', null];
-        }
+    if (doc.exists()){
+        return await updatePosition(uid, values, cost, doc);
     } else {
-        //We must set a new document
         try {
+            const date = await new Date();
             const perShare = (Number(cost)/Number(values.shares)).toFixed(4);
             const newPosition = {
                 category: values.category,
                 shares: Number(values.shares),
                 cost: Number(cost),
-                transactions: {transactionTime: new Date(),
-                    transactionType: `${values.shares} shares added @ $${perShare} ea` },
+                transactions: [{date: date.toString(), transaction:`${values.shares} shares added @ $${perShare} ea`}]
             }
-            return docRef.set(newPosition).then( (error) => {
-               let addSuccess = true;
-               if (error){
-                   console.log(error);
-                   addSuccess = false;
-               }
-               return [addSuccess, 'add'];
+            let writeSuccess = true;
+            await docRef.set(newPosition, (error) => {
+                if (error){
+                    writeSuccess = false;
+                }
             });
+            return [writeSuccess, 'add'];
 
         } catch(error) {
             console.log(error);
             return [false, 'add'];
         }
     }
+}
 
+export async function updatePosition(uid, values, cost, doc){
+    //This function is only for increasing the shares in a position/ adding a new position
+    const ticker = values.ticker.replace('.', '_');
+    const docRef = realTime.ref('/portfolios/'+uid+'/'+ticker);
+    try {
+        const previousDoc = doc.val();
+        const prevShares = doc.val().shares;
+        const prevSector = doc.val().category;
+        const newCost = Number(cost) + Number(doc.val().cost);
+        const newShares = Number(prevShares) + Number(values.shares);
+        const perShare = (Number(cost)/Number(values.shares)).toFixed(4);
+
+        const updatedPosition = {
+            category: values.category,
+            shares: newShares,
+            cost: newCost,
+        }
+
+        const payload = [values.ticker.toUpperCase(), [prevShares, newShares], newCost, [prevSector, values.category]];
+        let updateSuccess = true;
+        let transactionSuccess = true;
+        await docRef.update(updatedPosition, (error) => {
+            if (error){
+                updateSuccess = false;
+            }
+        });
+        if (updateSuccess){
+            // update the transaction
+            const t = {
+                date: new Date().toString(),
+                transaction: `${Number(values.shares)} shares added @ $${perShare} ea`
+            }
+            await docRef.child('/transactions/').push().set(t, (error) => {
+                if (error) {
+                    transactionSuccess = false;
+                }
+            });
+        }
+
+        //Revert the transaction if any part fails.
+        if (!transactionSuccess){
+            await docRef.update(previousDoc);
+            updateSuccess = false;
+        }
+
+        return [updateSuccess, 'update', payload];
+
+    } catch(error) {
+        console.log(error);
+        return [false, 'update', null];
+    }
+}
+
+function logTransaction(uid, ticker, type, data){
+    const transactionRef = realTime.ref('/portfolios/'+uid+'/'+ticker+'/transactions').push();
+    if (type === 'buy'){
+        let dataString = `${data[0]} shares added @ $${data[1]} ea`;
+        return transactionRef.set({transactionTime: new Date(), transaction: dataString}, (error) => {
+            if (error){
+                console.log(error);
+                return false;
+            }
+            return true;
+        });
+    }
 }
 
 

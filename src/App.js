@@ -103,7 +103,7 @@ export default class App extends Component {
                             <Content>
                                 {/*Here is the router for the content*/}
                                     <Switch>
-                                        <Route exact path={'/'} component={WelcomePage}/>
+                                        <Route exact path={'/welcome'} component={WelcomePage}/>
                                         <PrivateRoute
                                             path='/portfolio'
                                             authenticated={this.state.authenticated}
