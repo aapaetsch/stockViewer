@@ -19,19 +19,18 @@ export default class TableInternal extends Component {
                     </Col>
                     <Col>
                         <Statistic
-                            value={this.props.data.dayPercent}
+                            value={this.props.data.changePercent}
                             precision={2}
-                            valueStyle={this.props.data.dayPercent >= 0 ?
+                            valueStyle={this.props.data.changePercent >= 0 ?
                                 ({color: '#3f8600'}) :
                                 ({color: '#cf1322'})
                             }
-                            prefix={this.props.data.dayPercent >= 0 ?
+                            prefix={this.props.data.changePercent >= 0 ?
                                 (<ArrowUpOutlined/>):
                                 (<ArrowDownOutlined/>)
                             }
                             suffix="%"
-                            ></Statistic>
-
+                            />
                     </Col>
                 </Row>
             </Card>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Card, Button, Row, Col, Table, Descriptions } from 'antd';
+import { Card, Button, Row, Col, Table, Descriptions,Switch, Space } from 'antd';
 import { auth } from '../../services/firebase';
  import AddStock from "../../popups/addStock";
 import 'antd/dist/antd.css';
@@ -7,22 +7,35 @@ import '../../App.css';
 import '../../styles/portfolio.css';
 import TableInternal from "./tableInternal";
 
-
+const sectors = [
+    {value:'Technology', text:'Technology'},
+    {value:'Communication', text:'Communication'},
+    {value: 'Consumer Discretionary', text: 'Consumer Discretionary'},
+    {value: 'Consumer Staple', text: 'Consumer Staple'},
+    {value: 'Energy', text:'Energy'},
+    {value: 'Financial', text: 'Financial'},
+    {value: 'Healthcare', text: 'Healthcare'},
+    {value: 'Industrial', text: 'Industrial'},
+    {value: 'Materials', text:'Materials'},
+    {value: 'Real Estate', text:'Real Estate'},
+    {value: 'Utilities', text: 'Utilities'},
+    {value: 'International', text: 'International'},
+    {value: 'Misc', text: 'Misc'}
+]
 export default class StockList extends Component {
     constructor(props){
         super(props);
         this.state = {
             showLoading: false,
             gutterSize: [10,10],
-            // data: [],
-            // totalBookValue: 0,
+
 
         }
         // this.updateStocks = this.updateStocks.bind(this);
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext){
-        return this.props !== nextProps || this.state.showLoading !== nextState.showLoading;
+        return this.props.data !== nextProps.data || this.state.showLoading !== nextState.showLoading;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot){
@@ -52,6 +65,14 @@ export default class StockList extends Component {
                 return 'smallPositive';
             }
         }
+        function sectorValue(word) {
+            let val = 0;
+            for (let i =0; i < word.length; i++){
+                val += word.charCodeAt(i);
+            }
+            return val;
+        }
+
         const stockListColumns = [
             {
                 title: '% Portfolio', dataIndex: 'portfolioPercent', fixed: 'left',
@@ -66,60 +87,81 @@ export default class StockList extends Component {
                 }
             },
             {
-                title: 'Market Sector', dataIndex: 'category'
+                title: 'Market Sector', dataIndex: 'category',
+                sorter: (a,b) => sectorValue(a.category) - sectorValue(b.category),
+                filters: sectors,
+                onFilter: (value, record) => record.category.indexOf(value) === 0,
             },
             {
                 title: 'Current Price', dataIndex: 'current',
+                sorter:{
+                    compare:  (a,b) => a.current - b.current,
+                    multiple: 2,
+                },
                 render: (text) => {
-                    return <span>$ {text.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+                    return <span>$ {text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
                 }
             },
             {
                 title: 'Shares', dataIndex: 'shares'
             },
             {
-                title: 'Book Value', dataIndex: 'bookValue',
+                title: 'Book Value', dataIndex: 'cost',
+                sorter: {
+                    compare: (a,b) => a.cost - b.cost,
+                    multiple: 3
+                },
                 render: (text) => {
-                    return <span>$ {text.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+                    return <span>$ {text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
                 }
             },
             {
                 title: 'Current Value', dataIndex: 'currentValue',
+                sorter: {
+                    compare: (a,b) => a.currentValue - b.currentValue,
+                    multiple: 1
+                },
                 render: (text) => {
-                    return <span>$ {text.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+                        return <span>$ {text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
                 }
             },
             {
                 title: 'Profit', dataIndex: 'profit',
                 render: (text) => {
-                    return <span>$ {text.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
+                    return <span>$ {text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</span>
                 }
             },
             {
                 title: '% Profit', dataIndex: 'profitPercent',
                 render: (text) => {
-                    return <span>{text.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}%</span>;
+                    return <span>{text.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}%</span>;
                 }
             },
         ]
 
         return (
-          <div>
+          <div key={this.props.data}>
 
-              <Card title='Stocks List' extra={<AddStock updateMainData={this.props.updateParentData}/>}>
+              <Card title='Stocks List' extra={
+                  <Space>
+                      Currency:
+                      <Switch checkedChildren={'CAD'} unCheckedChildren={'USD'} defaultChecked
+                              onChange={this.props.setCurrency}/>
+                              &nbsp;
+                      <AddStock updateMainData={this.props.updateParentData}/>
+                  </Space>
+                    }>
+
                   <Row gutter={this.state.gutterSize} justify='center'>
                       <Table
                           rowClassName={ (record, index) => {
-                              let background = 'evenRow';
-                              if (index % 2 === 1){
-                                  background = 'alternateRow'
-                              }
-                              return `${background} ${colorSwitcher(record['profitPercent'])}`;
+                              return `${colorSwitcher(record['profitPercent'])}`;
                           }}
                           expandable={{
                               expandedRowRender: (record, index) => {
                                   return <TableInternal data={record}/>
                               },
+                              expandRowByClick: true
                           }}
 
                           columns={stockListColumns}
@@ -128,7 +170,6 @@ export default class StockList extends Component {
                           dataSource={this.props.data}
                           loading={this.state.showLoading}
                           size="small"
-                          bordered={true}
                           summary={ () => (
                               <Table.Summary.Row style={{backgroundColor: '#f0f0f0'}} >
                                   <Table.Summary.Cell index={1} colRow={3}>Totals</Table.Summary.Cell>

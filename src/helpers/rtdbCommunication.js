@@ -11,7 +11,7 @@ export async function addPosition(values, cost){
     }
     const uid = currentUser.uid;
     //TODO: Add Check for valid ticker
-    const response = await fetch(`${stonkApi}/current/single?ticker=${values.ticker}`);
+    const response = await fetch(`${stonkApi}/single/exists?ticker=${values.ticker}`);
     const data = await response.json();
     let badData = true;
     if (data){
@@ -35,7 +35,7 @@ export async function addPosition(values, cost){
                 category: values.category,
                 shares: Number(values.shares),
                 cost: Number(cost),
-                transactions: [{date: date.toString(), transaction:`${values.shares} shares added @ $${perShare} ea`}]
+                transactions: [{date: date.toString(), transaction:`${values.shares} shares bought @ $${perShare} ea`}]
             }
             let writeSuccess = true;
             await docRef.set(newPosition, (error) => {
@@ -82,7 +82,7 @@ export async function updatePosition(uid, values, cost, doc){
             // update the transaction
             const t = {
                 date: new Date().toString(),
-                transaction: `${Number(values.shares)} shares added @ $${perShare} ea`
+                transaction: `${Number(values.shares)} shares bought @ $${perShare} ea`
             }
             await docRef.child('/transactions/').push().set(t, (error) => {
                 if (error) {
@@ -108,7 +108,7 @@ export async function updatePosition(uid, values, cost, doc){
 function logTransaction(uid, ticker, type, data){
     const transactionRef = realTime.ref('/portfolios/'+uid+'/'+ticker+'/transactions').push();
     if (type === 'buy'){
-        let dataString = `${data[0]} shares added @ $${data[1]} ea`;
+        let dataString = `${data[0]} shares bought @ $${data[1]} ea`;
         return transactionRef.set({transactionTime: new Date(), transaction: dataString}, (error) => {
             if (error){
                 console.log(error);

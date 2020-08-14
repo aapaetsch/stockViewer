@@ -8,7 +8,8 @@ export default class LocationDonut extends Component {
         this.state = {
             formattedData: [],
             originalData: [],
-            currentData: []
+            currentData: [],
+            updating: false,
         }
     }
     componentDidMount(){
@@ -24,37 +25,42 @@ export default class LocationDonut extends Component {
     }
 
     formatData = () => {
-        let dataOriginal = [];
-        let dataCurrent = [];
-        let locationWeightsOriginal = {};
-        let locationWeightsCurrent = {};
+        if (this.state.updating === false){
+            this.setState({updating: true}, () => {
 
-        if (this.props.data.length !== 0){
-                console.log(this.props.data)
-                this.props.data.forEach( (positions) => {
-                    console.log(positions)
-                    try {
-                        locationWeightsOriginal[positions.location].Weight += Number(positions.originalPercent);
-                        locationWeightsCurrent[positions.location].Weight += Number(positions.portfolioPercent);
-                    } catch {
-                        locationWeightsOriginal[positions.location] = {'Weight': Number(positions.originalPercent), 'Location': positions.location};
-                        locationWeightsCurrent[positions.location] = {'Weight': Number(positions.portfolioPercent), 'Location': positions.location};
-                    }
-                });
+                let dataOriginal = [];
+                let dataCurrent = [];
+                let locationWeightsOriginal = {};
+                let locationWeightsCurrent = {};
 
-                Object.keys(locationWeightsOriginal).forEach( (key, index) => {
-                    dataOriginal.push(locationWeightsOriginal[key]);
-                    dataCurrent.push(locationWeightsCurrent[key]);
-                });
-            }
-        console.log(dataCurrent)
-        this.setState({originalData: dataOriginal, currentData: dataCurrent, formattedData: dataCurrent});
+                if (this.props.data.length !== 0){
+                    console.log(this.props.data)
+                    this.props.data.forEach( (positions) => {
+                        console.log(positions)
+                        try {
+                            locationWeightsOriginal[positions.location].Weight += Number(positions.originalPercent);
+                            locationWeightsCurrent[positions.location].Weight += Number(positions.portfolioPercent);
+                        } catch {
+                            locationWeightsOriginal[positions.location] = {'Weight': Number(positions.originalPercent), 'exchange': positions.exchange};
+                            locationWeightsCurrent[positions.location] = {'Weight': Number(positions.portfolioPercent), 'exchange': positions.exchange};
+                        }
+                    });
+
+                    Object.keys(locationWeightsOriginal).forEach( (key, index) => {
+                        dataOriginal.push(locationWeightsOriginal[key]);
+                        dataCurrent.push(locationWeightsCurrent[key]);
+                    });
+                }
+                console.log(dataCurrent)
+                this.setState({originalData: dataOriginal, currentData: dataCurrent, formattedData: dataCurrent, updating: false});
+            });
+        }
     }
 
     render(){
         const data = this.state.formattedData;
         const locationDonut = {
-            forceFit: true,
+            // forceFit: true,
             title: {
                 visible: false,
                 text: "Location Breakdown"
@@ -65,9 +71,9 @@ export default class LocationDonut extends Component {
             },
             radius: 1,
             data,
-            padding: 'auto',
+            // padding: 'auto',
             angleField: 'Weight',
-            colorField: 'Location',
+            colorField: 'exchange',
             statistic: {visible: false},
         }
         return (

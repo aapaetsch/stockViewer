@@ -9,14 +9,14 @@ export default class SideBar extends Component {
     constructor(props){
         super(props);
         this.state = {
-            selected: '/welcome',
+            selected: '/world',
         }
     }
 
     componentDidMount(){
         auth().onAuthStateChanged( (user) => {
             if (user === null){
-                this.setState({selected: '/welcome'});
+                this.setState({selected: '/world'});
             }
         })
     }
@@ -40,6 +40,7 @@ export default class SideBar extends Component {
             <Menu
                 theme='dark'
                 multiple={false}
+                style={{zIndex:-1}}
                 selectedKeys={[this.state.selected]}
                 onClick={this.changePage}
                 mode='inline'
@@ -47,6 +48,13 @@ export default class SideBar extends Component {
                 <Menu.Item/>
                 <Menu.Item onClick={this.props.collapse} key={'null'}>
                     {React.createElement(this.props.isCollapsed ? MenuFoldOutlined : MenuUnfoldOutlined)}
+                </Menu.Item>
+                <Menu.Item
+                    icon={<GlobalOutlined/>}
+                    key='/world'>
+                    <NavLink to={'/world'}>
+                        World
+                    </NavLink>
                 </Menu.Item>
                 <Menu.Item
                     icon={<RocketOutlined />}
@@ -63,13 +71,7 @@ export default class SideBar extends Component {
                         Portfolio
                     </NavLink>
                 </Menu.Item>
-                <Menu.Item
-                    icon={<GlobalOutlined/>}
-                    key='/world'>
-                    <NavLink to={'/world'}>
-                        World
-                    </NavLink>
-                </Menu.Item>
+
 
             </Menu>
 

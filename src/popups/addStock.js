@@ -128,8 +128,7 @@ export default class AddStock extends Component{
                   closable={false}
                   footer={[
                       <p>
-                          Ticker should be in form "Ticker.Exchange" i.e. "BAM-A.TO".
-                          If you are unsure, please check at <a href='https://ca.finance.yahoo.com'>Yahoo Finance</a>
+                          Ticker should be in form "Ticker.Exchange" i.e. "BAM-A.TO". If you are unsure, please check at <a href='https://ca.finance.yahoo.com'>Yahoo Finance</a>
                       </p>
 
                   ]}

@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import { auth } from './services/firebase';
 import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
-import {Col, Row, Layout, Menu, Button} from "antd";
+import {Col, Row, Layout, Menu, Button, Affix} from "antd";
 import {MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import MenuBar from "./components/menubar";
 import SideBar from "./components/sideBar";
 import MainPage from "./pages/mainpage";
 import WelcomePage from './pages/welcomePage';
+import WorldStats from './pages/worldStats';
 import Portfolio from "./pages/Portfolio";
 
 const {Header, Content, Footer, Sider} = Layout;
@@ -17,7 +18,7 @@ function PrivateRoute({ component: Component, authenticated, ...rest}){
             {...rest}
             render={(props) => authenticated === true
                 ? <Component />
-                : <Redirect to={{pathname: '/welcome', state: {from: props.location}}}/>
+                : <Redirect to={{pathname: '/world', state: {from: props.location}}}/>
             }
             />
     );
@@ -27,7 +28,7 @@ function PublicRoute({ component: Component, authenticated, ...rest}){
         <Route {...rest}
             render={ (props) => authenticated === false
                 ? <Component {...props}/>
-                : <Redirect to={'/welcome'}/>
+                : <Redirect to={'/world'}/>
             }
                 />
     )
@@ -80,7 +81,7 @@ export default class App extends Component {
             <div>
                 <Router>
                     <Layout>
-                        <Header style={{position: 'fixed', zIndex: 1, width: '100%'}}>
+                        <Header style={{position: 'fixed', zIndex: 10, width: '100%'}}>
                             <MenuBar currentUser={this.state.currentUser}/>
                         </Header>
 
@@ -88,22 +89,24 @@ export default class App extends Component {
                             <Sider
                                 breakpoint='lg'
                                 collapsible
-                                style={{height: '100vh'}}
+                                style={{height: '200vh', zIndex:0}}
                                 collapsed={this.state.collapsed}
                                 trigger={null}
                                 >
                                 <br/>
-                                <SideBar
-                                    authenticated={this.state.authenticated}
-                                    isCollapsed={this.state.collapsed}
-                                    collapse={this.collapseSidebar}
-                                />
+                                <Affix offsetTop={25}>
+                                    <SideBar
+                                        authenticated={this.state.authenticated}
+                                        isCollapsed={this.state.collapsed}
+                                        collapse={this.collapseSidebar}
+                                    />
+                                </Affix>
                             </Sider>
 
                             <Content>
                                 {/*Here is the router for the content*/}
                                     <Switch>
-                                        <Route exact path={'/welcome'} component={WelcomePage}/>
+                                        <Route exact path={'/world'} component={WorldStats}/>
                                         <PrivateRoute
                                             path='/portfolio'
                                             authenticated={this.state.authenticated}

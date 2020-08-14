@@ -39,11 +39,6 @@ export default class CategoryRadar extends Component {
         let largestSector = null;
         if (this.props.data.length !== 0) {
 
-            // this.state.marketSectors.forEach( (sector) => {
-            //     currentWeight[sector] = { weight: 0};
-            //     originalWeight[sector] = { weight: 0};
-            // });
-
             this.props.data.forEach((position) => {
                 try {
                     currentWeight[position.category].weight += Number(position.portfolioPercent);
@@ -54,13 +49,6 @@ export default class CategoryRadar extends Component {
                     originalWeight[position.category] = {weight : Number(position.originalPercent)};
                 }
             });
-            let a = 0;
-            let b = 0;
-            this.props.data.forEach((p)=>{
-                a += p.portfolioPercent;
-                b += p.originalPercent;
-            });
-            console.log(a,b)
 
             this.state.marketSectors.forEach( (sector) => {
                 try{
