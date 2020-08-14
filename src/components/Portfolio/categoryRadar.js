@@ -7,7 +7,10 @@ export default class CategoryRadar extends Component {
     constructor(props){
         super(props);
         this.state = {
-            formattedData: []
+            formattedData: [],
+            marketSectors: ['Technology', 'Communication', 'Energy', 'Financial',
+                'Healthcare','Industrial', 'Consumer Staple','Consumer Discretionary',
+                'International','Misc', 'Utilities', 'Materials',  'Real Estate'],
         }
     }
     componentDidMount(){
@@ -31,22 +34,34 @@ export default class CategoryRadar extends Component {
         let currentWeight = {};
         let originalWeight = {};
         let radarData = [];
+        let missingSectors = [];
+        let smallestSector = null;
+        let largestSector = null;
         if (this.props.data.length !== 0) {
 
-            this.props.marketSectors.forEach( (sector) => {
-                currentWeight[sector] = { weight: 0};
-                originalWeight[sector] = { weight: 0};
-            });
-
             this.props.data.forEach((position) => {
-                currentWeight[position.category].weight += position.portfolioPercent;
-                originalWeight[position.category].weight += position.originalPercent;
+                try {
+                    currentWeight[position.category].weight += Number(position.portfolioPercent);
+                    originalWeight[position.category].weight += Number(position.originalPercent);
+
+                } catch(error){
+                    currentWeight[position.category] = {weight: Number(position.portfolioPercent)};
+                    originalWeight[position.category] = {weight : Number(position.originalPercent)};
+                }
             });
 
-            this.props.marketSectors.forEach( (sector) => {
-                radarData.push({'Market Sector': sector, Weight: currentWeight[sector].weight, Type: 'Current'},
-                    {'Market Sector': sector, Weight: originalWeight[sector].weight, Type: 'Original'});
+            this.state.marketSectors.forEach( (sector) => {
+                try{
+                    radarData.push({'Market Sector': sector, Weight: currentWeight[sector].weight, Type: 'Current'},
+                        {'Market Sector': sector, Weight: originalWeight[sector].weight, Type: 'Original'});
+                } catch(error){
+                    console.log(error);
+                }
+
+
             });
+
+
         }
         this.setState({formattedData: radarData});
     }

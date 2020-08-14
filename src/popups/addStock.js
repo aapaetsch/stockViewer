@@ -35,7 +35,7 @@ export default class AddStock extends Component{
                 totalCost = Number(values.cost);
             }
             message.loading("Add Stock in Progress...", 3);
-            addPosition(values, totalCost)
+            await addPosition(values, totalCost)
                 .then((success) => {
                     console.log(success);
                     if (success[0]){
@@ -120,13 +120,18 @@ export default class AddStock extends Component{
         return (
           <div>
               {/*TODO: only enable add if a user is logged in.*/}
-              <Button type="primary" icon={<PlusOutlined/>} onClick={this.showAddStock}/>
+              <Button type="primary" icon={<PlusOutlined/>} onClick={this.showAddStock} disabled={this.props.updatingData}/>
               <Modal
                   title="Add A Stock"
                   visible={this.state.visible}
                   maskClosable={false}
                   closable={false}
-                  footer={[]}
+                  footer={[
+                      <p>
+                          Ticker should be in form "Ticker.Exchange" i.e. "BAM-A.TO". If you are unsure, please check at <a href='https://ca.finance.yahoo.com'>Yahoo Finance</a>
+                      </p>
+
+                  ]}
                   >
                   <Form
                       {...formItemLayout}
@@ -138,7 +143,6 @@ export default class AddStock extends Component{
                       ref={this.formRef}
                       onFinish={this.addStockOk}
                   >
-                      <p>Ticker should be in form "Ticker.Exchange" i.e. "Shop.TO". ETF's are not currently supported.</p>
                       <Form.Item
                           name='ticker'
                           label='Ticker'

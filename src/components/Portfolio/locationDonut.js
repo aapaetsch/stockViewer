@@ -6,7 +6,10 @@ export default class LocationDonut extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            formattedData: []
+            formattedData: [],
+            originalData: [],
+            currentData: [],
+            updating: false,
         }
     }
     componentDidMount(){
@@ -22,30 +25,42 @@ export default class LocationDonut extends Component {
     }
 
     formatData = () => {
-        let data = [];
-        let locationWeights = {};
+        if (this.state.updating === false){
+            this.setState({updating: true}, () => {
 
-        if (this.props.data.length !== 0){
+                let dataOriginal = [];
+                let dataCurrent = [];
+                let locationWeightsOriginal = {};
+                let locationWeightsCurrent = {};
 
-                Object.keys(this.props.exchangeLocation).forEach ((key, index) =>{
-                    console.log(key);
-                    locationWeights[key] = {Weight: 0, 'Location': this.props.exchangeLocation[key]}
-                });
-                this.props.data.forEach( (position) => {
-                    console.log(locationWeights);
-                    locationWeights[position.exchange].Weight += 1;
-                });
-                Object.keys(this.props.exchangeLocation).forEach( (key, index) => {
-                    data.push(locationWeights[key]);
-                });
-            }
-        this.setState({formattedData: data});
+                if (this.props.data.length !== 0){
+                    console.log(this.props.data)
+                    this.props.data.forEach( (positions) => {
+                        console.log(positions)
+                        try {
+                            locationWeightsOriginal[positions.location].Weight += Number(positions.originalPercent);
+                            locationWeightsCurrent[positions.location].Weight += Number(positions.portfolioPercent);
+                        } catch {
+                            locationWeightsOriginal[positions.location] = {'Weight': Number(positions.originalPercent), 'exchange': positions.exchange};
+                            locationWeightsCurrent[positions.location] = {'Weight': Number(positions.portfolioPercent), 'exchange': positions.exchange};
+                        }
+                    });
+
+                    Object.keys(locationWeightsOriginal).forEach( (key, index) => {
+                        dataOriginal.push(locationWeightsOriginal[key]);
+                        dataCurrent.push(locationWeightsCurrent[key]);
+                    });
+                }
+                console.log(dataCurrent)
+                this.setState({originalData: dataOriginal, currentData: dataCurrent, formattedData: dataCurrent, updating: false});
+            });
+        }
     }
 
     render(){
         const data = this.state.formattedData;
         const locationDonut = {
-            forceFit: true,
+            // forceFit: true,
             title: {
                 visible: false,
                 text: "Location Breakdown"
@@ -56,9 +71,9 @@ export default class LocationDonut extends Component {
             },
             radius: 1,
             data,
-            padding: 'auto',
+            // padding: 'auto',
             angleField: 'Weight',
-            colorField: 'Location',
+            colorField: 'exchange',
             statistic: {visible: false},
         }
         return (
