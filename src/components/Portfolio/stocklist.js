@@ -5,6 +5,7 @@ import { auth } from '../../services/firebase';
 import 'antd/dist/antd.css';
 import '../../App.css';
 import '../../styles/portfolio.css';
+import '../../styles/cards.css';
 import TableInternal from "./tableInternal";
 
 const sectors = [
@@ -142,7 +143,7 @@ export default class StockList extends Component {
         return (
           <div key={this.props.data}>
 
-              <Card title='Stocks List' extra={
+              <Card title='Stocks List' className='cardRounded' extra={
                   <Space>
                       Currency:
                       <Switch checkedChildren={'CAD'} unCheckedChildren={'USD'} defaultChecked

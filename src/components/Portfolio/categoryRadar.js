@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Radar } from '@ant-design/charts';
 import {Card, Col, Row, Skeleton} from 'antd';
+import '../../styles/cards.css';
 
 
 export default class CategoryRadar extends Component {
@@ -94,7 +95,7 @@ export default class CategoryRadar extends Component {
             },
         };
         return (
-            <Card title='Market Sector Weights'>
+            <Card title='Market Sector Weights' className='cardRounded'>
                 <Row justify='center' align='middle'>
                     <Col span={24}>
                         {this.state.formattedData.length !== 0 ?

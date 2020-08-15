@@ -1,5 +1,7 @@
 import React, {Component} from 'react';
 import {Card, Row, Col, List, Table, DatePicker } from 'antd';
+import '../../styles/cards.css';
+
 const { RangePicker } = DatePicker;
 
 export default class RecentTransactionCard extends Component {
@@ -131,7 +133,7 @@ export default class RecentTransactionCard extends Component {
         ]
 
         return (
-          <Card title='Recent Transactions'>
+          <Card title='Recent Transactions' className='cardRounded'>
           {/*/!*TODO:Turn list into infinite scrolling*!/*/}
           {/*    <List*/}
           {/*        itemLayout='horizontal'*/}
