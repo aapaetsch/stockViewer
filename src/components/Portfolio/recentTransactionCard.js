@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Card, Row, Col, List, Table, DatePicker } from 'antd';
-import '../../styles/cards.css';
-
+import 'antd/dist/antd.css';
+import '../../App.css';
 const { RangePicker } = DatePicker;
 
 export default class RecentTransactionCard extends Component {

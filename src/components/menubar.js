@@ -5,6 +5,7 @@ import { logout } from '../helpers/auth';
 import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
+import '../App.css';
 
 const { Search } = Input;
 
@@ -85,10 +86,10 @@ export default class MenuBar extends Component {
                     { this.props.currentUser === null
                         ? (
                             <Space>
-                                <Button onClick={() => this.showAuthenticate('Login')}>
+                                <Button type='primary' onClick={() => this.showAuthenticate('Login')}>
                                     Login
                                 </Button>
-                                <Button onClick={() => this.showAuthenticate('Sign Up')}>
+                                <Button type='primary' onClick={() => this.showAuthenticate('Sign Up')}>
                                     Sign Up
                                 </Button>
                             </Space>

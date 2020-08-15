@@ -4,6 +4,7 @@ import { Link, NavLink } from 'react-router-dom';
 import { auth } from '../services/firebase';
 import { RocketOutlined, BankOutlined, GlobalOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import 'antd/dist/antd.css';
+import '../App.css';
 
 export default class SideBar extends Component {
     constructor(props){
@@ -38,7 +39,7 @@ export default class SideBar extends Component {
     render() {
         return (
             <Menu
-                theme='dark'
+                theme='light'
                 multiple={false}
                 style={{zIndex:-1}}
                 selectedKeys={[this.state.selected]}

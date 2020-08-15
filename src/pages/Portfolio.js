@@ -4,10 +4,10 @@ import StockList from "../components/Portfolio/stocklist";
 import LocationDonut from '../components/Portfolio/locationDonut';
 import CategoryRadar from '../components/Portfolio/categoryRadar';
 import { auth, realTime } from '../services/firebase';
-import 'antd/dist/antd.css';
-import '../styles/portfolio.css';
 import RecentTransactionCard from "../components/Portfolio/recentTransactionCard";
 import {getMultipleTickers} from "../helpers/rtdbCommunication";
+import 'antd/dist/antd.css';
+import '../App.css';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
 export default class Portfolio extends Component {

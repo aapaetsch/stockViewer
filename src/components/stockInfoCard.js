@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import { Card, Button, Statistic, Row, Col} from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import 'antd/dist/antd.css';
-import '../styles/cards.css';
+import '../App.css';
 
 export default class WorldStatInfoCard extends Component {
     constructor(props) {

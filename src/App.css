@@ -37,20 +37,75 @@
   }
 }
 
-.centerItem {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  -moz-Transform: translateX(-50%) translateY(-50%);
-  -webkit-Transform: translateX(-50%) translateY(-50%);
-  transform: translateX(-50%) translateY(-50%);
-}
-
-.mainDiv {
-  text-align: center;
-  display: inline-block;
-}
 
 .site-card-border-less-wrapper {
   background: #ececec;
+}
+/*Antd theme overwrites */
+.ant-btn-primary {
+  background: #35d0c6;
+  border-color: #35d0c6;
+}
+
+
+/*Portfolio themes*/
+.gutter-row{
+  padding: 3px 3px;
+  background: #bfbfbf;
+}
+
+.routerBackground {
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 72px;
+  height: 200vh;
+  background: #bfbfbf;
+}
+
+.negative{
+  color: #f5222d;
+  font-size: 11px;
+}
+.smallPositive{
+  color:#000000;
+  font-size: 11px;
+}
+.mediumPositive{
+  color:#52c41a;
+  font-size: 11px;
+}
+.largePositive{
+  color:#722ed1;
+  font-size: 11px;
+}
+
+.recentTransaction {
+  font-size: 11px;
+}
+
+/*Login Themes*/
+.authenticateButton{
+  margin-top: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  color: white;
+  width: 50%;
+}
+
+.linkHover {
+  color: dodgerblue;
+  text-decoration: underline;
+}
+
+.linkHover:hover {
+  color: blue;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+/*Card themes*/
+.cardRounded {
+  text-align: center;
+  border-radius: 25px;
 }

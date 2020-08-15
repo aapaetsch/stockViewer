@@ -10,6 +10,7 @@ import WelcomePage from './pages/welcomePage';
 import WorldStats from './pages/worldStats';
 import Portfolio from "./pages/Portfolio";
 
+
 const {Header, Content, Footer, Sider} = Layout;
 
 function PrivateRoute({ component: Component, authenticated, ...rest}){

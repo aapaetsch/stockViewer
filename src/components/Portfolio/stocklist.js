@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
 import { Card, Button, Row, Col, Table, Descriptions,Switch, Space } from 'antd';
 import { auth } from '../../services/firebase';
- import AddStock from "../../popups/addStock";
+import AddStock from "../../popups/addStock";
 import 'antd/dist/antd.css';
 import '../../App.css';
-import '../../styles/portfolio.css';
-import '../../styles/cards.css';
 import TableInternal from "./tableInternal";
 
 const sectors = [

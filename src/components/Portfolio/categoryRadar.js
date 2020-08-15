@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Radar } from '@ant-design/charts';
 import {Card, Col, Row, Skeleton} from 'antd';
-import '../../styles/cards.css';
+import 'antd/dist/antd.css';
+import '../../App.css';
 
 
 export default class CategoryRadar extends Component {
