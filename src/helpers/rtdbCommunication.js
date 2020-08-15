@@ -119,6 +119,20 @@ function logTransaction(uid, ticker, type, data){
     }
 }
 
+export async function getMultipleTickers(type, arg, tickers){
+    try{
+        console.log(`${stonkApi}/${type}/multiple?${arg}=${tickers}`);
+        const result = await fetch(`${stonkApi}/${type}/multiple?${arg}=${tickers}`);
+        const resData = result.json();
+        console.log(resData)
+        return resData;
+    } catch (error){
+        console.log(error);
+        return null
+    }
+
+}
+
 
 export async function deleteStock(uid, values, cost){
 //TODO: add delete stocks

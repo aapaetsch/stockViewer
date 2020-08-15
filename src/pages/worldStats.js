@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Row, Col, message } from 'antd';
 import 'antd/dist/antd.css';
 import '../styles/portfolio.css';
+import {getMultipleTickers} from "../helpers/rtdbCommunication";
+import WorldStatInfoCard from "../components/stockInfoCard";
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
 export default class WorldStats extends Component {
@@ -14,75 +16,43 @@ export default class WorldStats extends Component {
             indicieData: [],
             // updatingData: false,
         }
-        this.formatCurrencies = this.formatCurrencies.bind(this);
-        this.formatIndicies = this.formatIndicies.bind(this);
+        this.formatMainStats = this.formatMainStats.bind(this);
     }
 
     componentDidMount(){
-
+        this.formatMainStats();
     }
 
-    async formatCurrencies(){
-        try{
-            const mainCurrencies = ['CADUSD=X', 'CADEUR=X', 'CADGBP=X'];
-            const response = await fetch(`${stonkApi}/currencies/multiple?currencies=${mainCurrencies.toString()}`);
-            const data = await response.json();
-
-        } catch(error) {
-            console.log(error);
-            message.error('There was an error retrieving live currency data.')
-            return false;
-        }
-    }
-
-    async formatIndicies(){
-        try{
-            const mainIndicies = ["^GSPTSE", "^GSPC", "^DJI", "^IXIC"];
-            const response = await fetch(`${stonkApi}/indicies/multiple?indicies=${mainIndicies.toString()}`)
-            const data = await response.json();
-
-            return true
-        } catch(error){
-            console.log(error);
-            message.error('There was an error retrieving live Index data')
-            return false;
-        }
-
+    async formatMainStats() {
+        console.log('start');
+        const mainCurrencies = ['CADUSD=X', 'CADEUR=X', 'CADGBP=X'];
+        const currencyData = await getMultipleTickers('currencies', 'currencies', mainCurrencies);
+        console.log(currencyData);
+        const mainIndicies = ["^GSPTSE", "^GSPC", "^DJI", "^IXIC"];
+        const indexData = await getMultipleTickers('indicies', 'indicies', mainIndicies);
+        console.log(indexData);
+        this.setState({currencyData: (currencyData !== null ? (currencyData) : ([])),
+            indicieData: (indexData !== null ? (indexData) : ([]))
+        });
     }
 
     render() {
+        function statCards(dataSource, borders){
+            const cards = dataSource.map( (stat) =>
+                <Col flex={1}>
+                    <WorldStatInfoCard data={stat}/>
+                </Col>);
+
+            return (
+                <Row className='gutter-row' justify='center' align='middle' gutter={borders}>
+                    {cards}
+                </Row>
+            );
+        }
         return (
-            <div>
-                <Row className='gutter-row' justify='center' gutter={this.state.borders}>
-                    <Col className='gutter-row' span={7}>
-                            
-                    </Col>
-                    <Col>
-
-                    </Col>
-                    <Col>
-
-                    </Col>
-                    <Col>
-
-                    </Col>
-                </Row>
-                <Row>
-                    <Col>
-
-                    </Col>
-                    <Col>
-
-                    </Col>
-                    <Col>
-
-                    </Col>
-                    <Col>
-
-                    </Col>
-                </Row>
-
-
+            <div className='routerBackground'>
+                {statCards(this.state.indicieData, this.state.borders)}
+                {statCards(this.state.currencyData, this.state.borders)}
             </div>
         );
     }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Donut } from '@ant-design/charts';
 import {Card, Row, Col, Skeleton} from "antd";
+import '../../styles/cards.css';
 
 export default class LocationDonut extends Component {
     constructor(props) {
@@ -77,7 +78,7 @@ export default class LocationDonut extends Component {
             statistic: {visible: false},
         }
         return (
-            <Card title='Location Breakdown'>
+            <Card title='Location Breakdown' className='cardRounded'>
                 <Row justify='center'>
                     <Col span={24}>
                         { this.state.formattedData.length !== 0 ?
