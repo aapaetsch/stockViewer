@@ -4,10 +4,10 @@ import StockList from "../components/Portfolio/stocklist";
 import LocationDonut from '../components/Portfolio/locationDonut';
 import CategoryRadar from '../components/Portfolio/categoryRadar';
 import { auth, realTime } from '../services/firebase';
-import 'antd/dist/antd.css';
-import '../styles/portfolio.css';
 import RecentTransactionCard from "../components/Portfolio/recentTransactionCard";
 import {getMultipleTickers} from "../helpers/rtdbCommunication";
+// import 'antd/dist/antd.css';
+import '../App.css';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
 export default class Portfolio extends Component {
@@ -149,6 +149,11 @@ export default class Portfolio extends Component {
     }
 
     render(){
+        const colSize = {
+            'sm': 24,
+            'md': 12,
+            'lg': 8,
+        }
         return (
             <div className='routerBackground'>
                 <Row justify='center' gutter={this.state.borders}>
@@ -162,18 +167,14 @@ export default class Portfolio extends Component {
                     </Col>
                 </Row>
                 <Row className='gutter-row' justify='center' gutter={this.state.borders}>
-                    <Col className='gutter-row' span={1}>
-                        <Card title='buy sell fxns'>
 
-                        </Card>
-                    </Col>
-                    <Col className='gutter-row' span={6}>
+                    <Col className='gutter-row' {...colSize}>
                         <CategoryRadar data={this.state.data}/>
                     </Col>
-                    <Col className='gutter-row' span={6}>
+                    <Col className='gutter-row' {...colSize}>
                         <LocationDonut data={this.state.data}/>
                     </Col>
-                    <Col span={7}>
+                    <Col {...colSize}>
                         <RecentTransactionCard data={this.state.data}/>
                     </Col>
                 </Row>

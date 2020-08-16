@@ -9,6 +9,7 @@ import MainPage from "./pages/mainpage";
 import WelcomePage from './pages/welcomePage';
 import WorldStats from './pages/worldStats';
 import Portfolio from "./pages/Portfolio";
+import './App.css';
 
 const {Header, Content, Footer, Sider} = Layout;
 
@@ -18,7 +19,7 @@ function PrivateRoute({ component: Component, authenticated, ...rest}){
             {...rest}
             render={(props) => authenticated === true
                 ? <Component />
-                : <Redirect to={{pathname: '/world', state: {from: props.location}}}/>
+                : <Redirect to={{pathname: '/', state: {from: props.location}}}/>
             }
             />
     );
@@ -28,7 +29,7 @@ function PublicRoute({ component: Component, authenticated, ...rest}){
         <Route {...rest}
             render={ (props) => authenticated === false
                 ? <Component {...props}/>
-                : <Redirect to={'/world'}/>
+                : <Redirect to={'/'}/>
             }
                 />
     )
@@ -106,7 +107,7 @@ export default class App extends Component {
                             <Content>
                                 {/*Here is the router for the content*/}
                                     <Switch>
-                                        <Route exact path={'/world'} component={WorldStats}/>
+                                        <Route exact path={'/'} component={WorldStats}/>
                                         <PrivateRoute
                                             path='/portfolio'
                                             authenticated={this.state.authenticated}

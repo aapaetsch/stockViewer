@@ -135,7 +135,7 @@ export default class Authenticate extends Component {
         return(
             <div>
                 <Modal
-                    title={(<h2 style={{textAlign: 'center'}}>{this.props.title}</h2>)}
+                    title={(<h2 style={{textAlign: 'center', color: '#fff'}}>{this.props.title}</h2>)}
                     visible={this.props.visible}
                     onCancel={this.hideAuthentication}
                     footer={switchScreen(this.props.title, this.props.changeAuthenticateType)}>
@@ -185,17 +185,18 @@ export default class Authenticate extends Component {
                         <div id='signInGroup' style={{textAlign:'center'}}>
                             <Checkbox
                                 onChange={() => this.setState({remember: !this.state.remember})}
+                                style={{color: '#fff'}}
                             >
                                 Remember Me
                             </Checkbox>
                             <Button
                                 className='authenticateButton'
-                                style={{backgroundColor: '#389e0d'}}
                                 htmlType='submit'
+                                type='primary'
                             >
                                 {this.props.title}
-                            </Button>
-                            <h3>OR</h3>
+                            </Button><br/>
+                            <h3 style={{color: '#fff'}}>OR</h3>
                             <Button
                                 className='authenticateButton'
                                 type='primary'

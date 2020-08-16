@@ -5,11 +5,13 @@
   "dependencies": {
     "@ant-design/charts": "^0.9.7",
     "@antv/g2plot": "^1.1.11",
+    "@craco/craco": "^5.6.4",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "antd": "^4.4.0",
     "antv": "^0.2.2",
+    "craco-less": "^1.17.0",
     "firebase": "^7.15.5",
     "memoize-one": "^5.1.1",
     "react": "^16.13.1",

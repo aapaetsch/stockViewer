@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {Card, Row, Col, List, Table, DatePicker } from 'antd';
-import '../../styles/cards.css';
-
+import '../../App.css';
 const { RangePicker } = DatePicker;
 
 export default class RecentTransactionCard extends Component {
@@ -133,32 +132,41 @@ export default class RecentTransactionCard extends Component {
         ]
 
         return (
-          <Card title='Recent Transactions' className='cardRounded'>
-          {/*/!*TODO:Turn list into infinite scrolling*!/*/}
-          {/*    <List*/}
-          {/*        itemLayout='horizontal'*/}
-          {/*        dataSource={this.state.data}*/}
-          {/*        renderItem={ (item) =>(*/}
-          {/*            <List.Item>*/}
-          {/*                <List.Item.Meta*/}
-          {/*                    title={item.ticker}*/}
-          {/*                    description={`<div>Date: ${item.date}</br>Transaction: ${item.action}</div>`}*/}
-          {/*                />*/}
-          {/*            </List.Item>*/}
-          {/*        )*/}
-          {/*        }*/}
-          {/*        />*/}
-                <Table
-                    columns={columns}
-                    dataSource={this.state.data}
-                    loading={this.state.loading}
-                    rowClassName='recentTransaction'
-                    size='small'
-                    pagination={{pageSize: 100}}
-                    scroll={{y:300}}
-                />
-
-          </Card>
+          // <Card title='Recent Transactions' className='cardRounded'>
+          // {/*/!*TODO:Turn list into infinite scrolling*!/*/}
+          // {/*    <List*/}
+          // {/*        itemLayout='horizontal'*/}
+          // {/*        dataSource={this.state.data}*/}
+          // {/*        renderItem={ (item) =>(*/}
+          // {/*            <List.Item>*/}
+          // {/*                <List.Item.Meta*/}
+          // {/*                    title={item.ticker}*/}
+          // {/*                    description={`<div>Date: ${item.date}</br>Transaction: ${item.action}</div>`}*/}
+          // {/*                />*/}
+          // {/*            </List.Item>*/}
+          // {/*        )*/}
+          // {/*        }*/}
+          // {/*        />*/}
+          //
+          //
+          // </Card>
+          //
+            <div>
+                <div className='stonkCardHeader'>
+                    <h3 style={{color: '#fff'}}>Recent Transactions</h3>
+                </div>
+                <div className='stonkCardBody'>
+                    <Table
+                        columns={columns}
+                        dataSource={this.state.data}
+                        loading={this.state.loading}
+                        rowClassName='recentTransaction'
+                        size='small'
+                        pagination={false}
+                        scroll={{y:300}}
+                    />
+                </div>
+            </div>
         );
     }
 }

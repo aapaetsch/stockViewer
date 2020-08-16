@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Donut } from '@ant-design/charts';
 import {Card, Row, Col, Skeleton} from "antd";
-import '../../styles/cards.css';
+import '../../App.css';
 
 export default class LocationDonut extends Component {
     constructor(props) {
@@ -48,8 +48,8 @@ export default class LocationDonut extends Component {
                     });
 
                     Object.keys(locationWeightsOriginal).forEach( (key, index) => {
-                        dataOriginal.push(locationWeightsOriginal[key]);
-                        dataCurrent.push(locationWeightsCurrent[key]);
+                        dataOriginal.push({'Weight': locationWeightsOriginal[key].Weight.toFixed(2), 'exchange': locationWeightsOriginal[key].exchange});
+                        dataCurrent.push({'Weight': locationWeightsCurrent[key].Weight.toFixed(2), 'exchange': locationWeightsCurrent[key].exchange});
                     });
                 }
                 console.log(dataCurrent)
