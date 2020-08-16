@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Card, Button, Statistic, Row, Col} from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import '../App.css';
 
 export default class WorldStatInfoCard extends Component {
@@ -15,7 +15,11 @@ export default class WorldStatInfoCard extends Component {
             return `${d.toLocaleDateString("en-US")} ${d.toLocaleTimeString("en-US")}`
         }
         return (
-            <Card title={this.props.data.name} className='cardRounded' hoverable>
+            <Card
+                title={this.props.data.name}
+                className='cardRounded'
+                hoverable
+                >
                 <Statistic
                     value={this.props.data.value}
                     precision={2}
@@ -23,8 +27,8 @@ export default class WorldStatInfoCard extends Component {
                 <Statistic
                     value={this.props.data.change}
                     valueStyle={this.props.data.change > 0 ?
-                        ({color: '#3f8600'}) :
-                        ({color: '#cf1322'})
+                        ({color: '#49aa19'}) :
+                        ({color: '#d32029'})
                     }
                     prefix={this.props.data.change > 0 ?
                         (<ArrowUpOutlined/>):
@@ -32,7 +36,7 @@ export default class WorldStatInfoCard extends Component {
                     }
                     suffix={` (${this.props.data.changePercent})`}
                 />
-                <span style={{color: '#bfbfbf', fontSize: '10px', paddingTop: '3%'}}>
+                <span style={{color: '#bfbfbf', fontSize: '10px', marginTop: '3%'}}>
                     Last updated: {formatDate(this.props.data.lastUpdate)}
                 </span>
             </Card>

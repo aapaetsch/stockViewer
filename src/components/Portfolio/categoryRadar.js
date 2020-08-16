@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Radar } from '@ant-design/charts';
 import {Card, Col, Row, Skeleton} from 'antd';
-import 'antd/dist/antd.css';
 import '../../App.css';
+
 
 
 export default class CategoryRadar extends Component {
@@ -70,7 +70,7 @@ export default class CategoryRadar extends Component {
 
     render() {
         const categoryPlot = {
-            forceFit: true,
+            // forceFit: true,
             title:{
                 visible: false,
                 text: 'Market Sector Radar'

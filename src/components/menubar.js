@@ -4,8 +4,10 @@ import { Row, Col, Space, Avatar, Button, Input} from 'antd';
 import { logout } from '../helpers/auth';
 import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
+// import 'antd/dist/antd.less';
 import '../App.css';
+
 
 const { Search } = Input;
 

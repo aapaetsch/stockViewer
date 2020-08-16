@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import { Card, Button, Row, Col, Table, Descriptions,Switch, Space } from 'antd';
 import { auth } from '../../services/firebase';
 import AddStock from "../../popups/addStock";
-import 'antd/dist/antd.css';
 import '../../App.css';
+
 import TableInternal from "./tableInternal";
 
 const sectors = [
@@ -137,54 +137,69 @@ export default class StockList extends Component {
                 }
             },
         ]
-
+        const myCardTitle = {
+            'xs': 12,
+            'md': 14,
+            'lg': 18,
+        }
+        const myCardButtons = {
+            'xs': 10,
+            'md': 10,
+            'lg': 6,
+        }
         return (
-          <div key={this.props.data}>
+            <div
+                key={this.props.data}>
+                <Row align='middle' className='stonkCardHeader'>
+                    <Col {...myCardTitle} >
+                        <h3 style={{color: '#fff'}}>Portfolio</h3>
+                    </Col>
+                    <Col {...myCardButtons}>
+                        <Space style={{color: '#fff'}}>
+                            Currency:
+                            <Switch checkedChildren={'CAD'} unCheckedChildren={'USD'} defaultChecked
+                                    onChange={this.props.setCurrency}/>
+                            &nbsp;
+                            <AddStock updateMainData={this.props.updateParentData}/>
+                        </Space>
+                    </Col>
+                </Row>
 
-              <Card title='Stocks List' className='cardRounded' extra={
-                  <Space>
-                      Currency:
-                      <Switch checkedChildren={'CAD'} unCheckedChildren={'USD'} defaultChecked
-                              onChange={this.props.setCurrency}/>
-                              &nbsp;
-                      <AddStock updateMainData={this.props.updateParentData}/>
-                  </Space>
-                    }>
+                <div className='stonkCardBody'>
+                    <Table
+                        rowClassName={ (record, index) => {
+                            return `${colorSwitcher(record['profitPercent'])}`;
+                        }}
+                        expandable={{
+                            expandedRowRender: (record, index) => {
+                                return <TableInternal data={record}/>
+                            },
+                            expandRowByClick: true
+                        }}
 
-                  <Row gutter={this.state.gutterSize} justify='center'>
-                      <Table
-                          rowClassName={ (record, index) => {
-                              return `${colorSwitcher(record['profitPercent'])}`;
-                          }}
-                          expandable={{
-                              expandedRowRender: (record, index) => {
-                                  return <TableInternal data={record}/>
-                              },
-                              expandRowByClick: true
-                          }}
+                        columns={stockListColumns}
+                        pagination={false}
+                        scroll={{x: 1000, y:300}}
+                        dataSource={this.props.data}
+                        loading={this.state.showLoading}
+                        size="small"
+                        style={{borderRadius: '25px'}}
 
-                          columns={stockListColumns}
-                          pagination={{pageSize: 100}}
-                          scroll={{x: 1000, y:300}}
-                          dataSource={this.props.data}
-                          loading={this.state.showLoading}
-                          size="small"
-                          summary={ () => (
-                              <Table.Summary.Row style={{backgroundColor: '#f0f0f0'}} >
-                                  <Table.Summary.Cell index={1} colRow={3}>Totals</Table.Summary.Cell>
-                                  <Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/>
-                                  <Table.Summary.Cell index={6}>
-                                      $ {this.props.totalBookValue}
-                                  </Table.Summary.Cell>
-                                  <Table.Summary.Cell index={7}>$ {this.props.currentTotal}</Table.Summary.Cell>
-                                  <Table.Summary.Cell index={8}>$ {this.props.currentTotal - this.props.totalBookValue }</Table.Summary.Cell>
-                                  <Table.Summary.Cell index={9}>{((this.props.currentTotal/this.props.totalBookValue) * 100).toFixed(2)} %</Table.Summary.Cell>
-                              </Table.Summary.Row>
-                          )}
-                          />
-                  </Row>
-              </Card>
-          </div>
+                        summary={ () => (
+                            <Table.Summary.Row style={{backgroundColor: '#f5f5f5'}}>
+                                <Table.Summary.Cell index={1} colRow={3} style={{backgroundColor: '#f5f5f5'}}>{`Total`}</Table.Summary.Cell>
+                                <Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/>
+                                <Table.Summary.Cell index={6}>
+                                    $ {this.props.totalBookValue.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                </Table.Summary.Cell>
+                                <Table.Summary.Cell index={7}>$ {this.props.currentTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</Table.Summary.Cell>
+                                <Table.Summary.Cell index={8}>$ {(this.props.currentTotal - this.props.totalBookValue).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }</Table.Summary.Cell>
+                                <Table.Summary.Cell index={9}>{((this.props.currentTotal/this.props.totalBookValue) * 100).toFixed(2)} %</Table.Summary.Cell>
+                            </Table.Summary.Row>
+                        )}
+                    />
+                </div>
+            </div>
         );
     }
 }

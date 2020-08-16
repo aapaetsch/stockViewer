@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Row, Col, message } from 'antd';
 import {getMultipleTickers} from "../helpers/rtdbCommunication";
 import WorldStatInfoCard from "../components/stockInfoCard";
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
 import '../App.css';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
