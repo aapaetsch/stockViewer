@@ -2,6 +2,7 @@
   "name": "stockviewer",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://aapaetsch.github.io/stockViewer",
   "dependencies": {
     "@ant-design/charts": "^0.9.7",
     "@antv/g2plot": "^1.1.11",
@@ -13,6 +14,7 @@
     "antv": "^0.2.2",
     "craco-less": "^1.17.0",
     "firebase": "^7.15.5",
+    "gh-pages": "^3.1.0",
     "memoize-one": "^5.1.1",
     "react": "^16.13.1",
     "react-app-rewire-antd-theme": "^1.1.4",
@@ -24,7 +26,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn run build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
