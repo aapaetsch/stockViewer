@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Row, Col, Button, message, notification, Skeleton, Card} from 'antd';
+import { Row, Col, message } from 'antd';
 import StockList from "../components/Portfolio/stocklist";
 import LocationDonut from '../components/Portfolio/locationDonut';
 import CategoryRadar from '../components/Portfolio/categoryRadar';
 import { auth, realTime } from '../services/firebase';
 import RecentTransactionCard from "../components/Portfolio/recentTransactionCard";
-import {getMultipleTickers} from "../helpers/rtdbCommunication";
-// import 'antd/dist/antd.css';
+import { getMultipleTickers, getAllOf } from "../helpers/APICommunication";
+import { getConversionRatio } from "../helpers/exchangeFxns";
 import '../App.css';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
@@ -16,23 +16,26 @@ export default class Portfolio extends Component {
         this.state = {
             borders: [8,8],
             data: [],
+            originalData: [],
             currentValue: 0,
             originalBookValue: 0,
             updatingData: false,
             currentUser: null,
-            currency: 'CAD'
+            currency: 'CAD',
+            updatingCurrency: false
         }
-        this.formatData = this.formatData.bind(this);
     }
 
     componentDidMount(){
-        console.log(auth().currentUser);
+
         try{
-            fetch(stonkApi + '/update');
+            fetch(stonkApi + '/update/world');
+
         } catch (error){
             console.log('Error: failed to fetch from api');
             message.error('There was an error getting live stock data');
         }
+
         this.setPortfolioListener(auth().currentUser.uid);
     }
 
@@ -40,13 +43,14 @@ export default class Portfolio extends Component {
         return this.props !== nextProps ||
             this.state.data !== nextState.data ||
             this.state.currentUser !== nextState.currentUser ||
-            this.state.updatingData !== nextState.updatingData;
+            this.state.updatingData !== nextState.updatingData ||
+            this.state.updatingCurrency !== nextState.updatingCurrency;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         this.setState({currentUser: auth().currentUser}, () => {
             if (this.state.currentUser === null){
-                this.setState({data: []});
+                this.setState({data: [], originalData: []});
                 this.portfolioListener.off();
             }
         });
@@ -55,71 +59,16 @@ export default class Portfolio extends Component {
 
     setPortfolioListener = (uid) => {
         this.portfolioListener = realTime.ref('/portfolios/' + uid).on('value', (positions) => {
+            fetch()
             this.formatData(positions);
         });
     }
 
-    async formatData(positions){
-        let portfolio = positions.val();
-        let tickers = Object.keys(portfolio);
-        //Set the users portfolio data before getting the live stock data
-        let data = await this.setPortfolio(portfolio, tickers);
-        console.log(data);
-        if (this.state.updatingData === false){
-            this.setState({updatingData: true}, async() => {
-                try{
-                    // const result = await fetch(`${stonkApi}/current/multiple?tickers=${tickers}`);
-                    // const dataList = await result.json();
-                    const dataList = await getMultipleTickers('current', 'tickers', tickers);
-
-                    let stockData = {}
-                    let currentTotalValue = 0;
-
-                    for (let i = 0; i < tickers.length; i++){
-                        stockData[dataList[i]['ticker']] = dataList[i];
-                    }
-
-                    for (let i = 0; i < tickers.length; i++){
-
-                        const t = tickers[i];
-                        const stock = stockData[t.replace('_','.')];
-                        console.log(portfolio, t, stockData)
-                        const cv = stock['price'] * Number(portfolio[t].shares);
-                        const profit = (stock.price * Number(portfolio[t].shares)) - portfolio[t].cost;
-                        currentTotalValue += cv;
-
-                        data[i] = {...data[i], ...stock};
-                        delete data[i].price;
-                        data[i].currentValue = cv.toFixed(2);
-                        data[i].profit = profit.toFixed(2);
-                        data[i].current = stock['price'].toFixed(2);
-                        data[i].profitPercent = ((profit/portfolio[t].cost) * 100).toFixed(2);
-                    }
-
-                    for (let i = 0; i < data.length; i++){
-                        data[i].portfolioPercent = ((data[i].currentValue / currentTotalValue)*100).toFixed(2);
-                        data[i].originalPercent = ((data[i].cost / this.state.originalBookValue)*100).toFixed(2);
-                    }
-                    console.log(data);
-
-                    this.setState({updatingData:false, data: data, currentValue: currentTotalValue});
-
-                } catch(error) {
-                    console.log(error);
-                    message.error('There was an error getting live stock data.');
-                    this.setState({updatingData:false, currentValue: 0});
-                }
-
-            })
-        }
-    }
-
-    async setPortfolio(portfolio, tickers){
+    setPortfolio = async (portfolio, tickers) => {
         let data = [];
-        let originalBookVal = 0;
-        // console.log(portfolio)
+        // let originalBookVal = 0;
+        console.log(portfolio)
         for (let i = 0; i < tickers.length; i++){
-            originalBookVal += portfolio[tickers[i]]['cost']
             let position = {
                 ...portfolio[tickers[i]],
                 ticker: tickers[i].replace('_','.'),
@@ -135,55 +84,184 @@ export default class Portfolio extends Component {
                 currency: 'Unknown',
                 exchange: 'Unknown'
             }
-            position.cost = position.cost.toFixed(2);
             data.push(position);
         }
-        this.setState({originalBookValue:originalBookVal});
         return data
     }
 
-    setCurrency = (currency) => {
-        console.log(currency);
-        //todo: add switch for currency
+    formatData = async (positions) => {
+        let portfolio = positions.val();
+        let tickers = Object.keys(portfolio);
+        //Set the users portfolio data before getting the live stock data
+        let data = await this.setPortfolio(portfolio, tickers);
 
+        if (this.state.updatingData === false){
+            this.setState({updatingData: true}, async() => {
+
+                try{
+                    const dataList = await getMultipleTickers('current', 'tickers', tickers);
+
+                    let stockData = {}
+
+                    for (let i = 0; i < tickers.length; i++){
+                        stockData[dataList[i]['ticker']] = dataList[i];
+                    }
+
+                    for (let i = 0; i < tickers.length; i++){
+
+                        const t = tickers[i];
+                        const stock = stockData[t.replace('_','.')];
+                        console.log(portfolio, t, stockData)
+                        const cv = stock['price'] * Number(portfolio[t].shares);
+                        const profit = (stock.price * Number(portfolio[t].shares)) - portfolio[t].cost;
+
+                        data[i] = {...data[i], ...stock};
+                        delete data[i].price;
+                        data[i].currentValue = cv;
+                        data[i].profit = profit;
+                        data[i].current = stock['price'];
+                        data[i].profitPercent = ((profit/portfolio[t].cost) * 100).toFixed(2);
+                    }
+
+                    let returnVals = await this.calcPortfolioAsCurrency(data);
+                    this.setState({updatingData:false, data: returnVals[0], originalData: data, currentValue: returnVals[2], originalBookValue: returnVals[1] });
+
+                } catch(error) {
+                    console.log(error);
+                    message.error('There was an error getting live stock data.');
+                    this.setState({updatingData:false, currentValue: 0, data: data, originalData:data});
+                }
+
+            })
+        }
     }
 
+    calcPortfolioAsCurrency = async (inputData) => {
+        //This function is called both when format data is triggered and when set currency is triggered
+        const currencyData = await getAllOf('currencies', 'object');
+        let originalTotalVal = 0;
+        let currentTotalVal = 0;
+        let data = [];
+        inputData.forEach( (position) => {
+            data.push({...position});
+        })
+
+        for (let i = 0; i < data.length; i++){
+            const d = data[i];
+
+            if (this.state.currency !== 'Default'){
+
+                if (d.currency !== this.state.currency){
+                   const ratio = getConversionRatio(currencyData, d.currency, this.state.currency);
+
+                   if (ratio === null){
+                       d.cost = d.currentValue = d.profit = d.profitPercent = 0;
+
+                   } else {
+                       d.cost = d.cost * ratio;
+                       d.current = d.current * ratio;
+                       d.currentValue = d.currentValue * ratio;
+                       d.profit = d.profit * ratio;
+                   }
+                }
+                originalTotalVal += d.cost;//add the original value
+                currentTotalVal += d.currentValue;//add the current total value
+
+            } else {
+
+                if (d.currency !== this.state.currency){
+                    const ratio = getConversionRatio(currencyData, d.currency, 'CAD');
+
+                    if (ratio !== null){
+                        originalTotalVal += d.cost * ratio;
+                        currentTotalVal += d.currentValue * ratio;
+                        d.ratio = ratio;
+                    }
+
+                } else {
+                    originalTotalVal += d.cost;
+                    currentTotalVal += d.currentValue;
+                }
+            }
+        }
+        for (let i = 0; i < data.length; i++){
+            const d = data[i];
+
+            if (this.state.currency === 'Default'){
+
+                if (d.currency !== 'CAD'){
+                    d.portfolioPercent = (((d.currentValue * d.ratio) / currentTotalVal) * 100).toFixed(2);
+                    d.originalPercent = (((d.cost * d.ratio) / originalTotalVal) * 100).toFixed(2);
+
+                } else {
+                    d.portfolioPercent = ((d.currentValue / currentTotalVal) * 100).toFixed(2);
+                    d.originalPercent = ((d.cost / originalTotalVal) * 100).toFixed(2);
+                }
+
+            } else {
+                d.portfolioPercent = ((d.currentValue / currentTotalVal) * 100).toFixed(2);
+                d.originalPercent = ((d.cost/originalTotalVal)*100).toFixed(2);
+            }
+        }
+        return [[...data], Number(originalTotalVal.toFixed(2)), Number(currentTotalVal.toFixed(2))];
+    }
+
+
+    setCurrency = (currency) => {
+        //This function is only called when a user switches their currency
+        const originalCurrency = this.state.currency;
+
+        if (this.state.updatingCurrency === false){
+            this.setState({updatingCurrency: true, currency: currency}, async () => {
+
+                try{
+                    const returnVals = await this.calcPortfolioAsCurrency(this.state.originalData);
+                    this.setState({updatingCurrency: false, originalBookValue: returnVals[1], data: returnVals[0], currentValue: returnVals[2]})
+
+                } catch(error) {
+                    console.log(error)
+                    this.setState({updatingCurrency: false, currency: originalCurrency});
+                }
+            });
+        }
+    }
+
+
+
     render(){
+
         const colSize = {
             'sm': 24,
-            'md': 12,
+            'md': 24,
             'lg': 8,
         }
+
         return (
             <div className='routerBackground'>
                 <Row justify='center' gutter={this.state.borders}>
-                    <Col className='gutter-row' span={24}>
+                    <Col span={24}>
                         <StockList
                             data={this.state.data}
                             totalBookValue={this.state.originalBookValue}
                             currentTotal={this.state.currentValue}
                             setCurrency={this.setCurrency}
+                            currency={this.state.currency}
+                            updatingCurrency={this.state.updatingCurrency}
                         />
                     </Col>
                 </Row>
-                <Row className='gutter-row' justify='center' gutter={this.state.borders}>
+                <Row  justify='center' gutter={this.state.borders}>
 
-                    <Col className='gutter-row' {...colSize}>
+                    <Col  {...colSize}>
                         <CategoryRadar data={this.state.data}/>
                     </Col>
-                    <Col className='gutter-row' {...colSize}>
+                    <Col {...colSize}>
                         <LocationDonut data={this.state.data}/>
                     </Col>
                     <Col {...colSize}>
-                        <RecentTransactionCard data={this.state.data}/>
-                    </Col>
-                </Row>
-                <Row justify='center' gutter={this.state.borders}>
-                    <Col>
-
-                    </Col>
-                    <Col>
-
+                        <RecentTransactionCard
+                            data={this.state.data}
+                            currency={this.state.currency}/>
                     </Col>
                 </Row>
             </div>

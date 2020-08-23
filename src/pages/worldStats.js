@@ -1,8 +1,7 @@
-import React, { Component } from 'react';
-import { Row, Col, message } from 'antd';
-import {getMultipleTickers} from "../helpers/rtdbCommunication";
-import WorldStatInfoCard from "../components/stockInfoCard";
-// import 'antd/dist/antd.css';
+import React, { Component, createRef } from 'react';
+import { Row, Col, Carousel, Button } from 'antd';
+import { getMultipleTickers, getAllOf } from "../helpers/APICommunication";
+import { CardCarousel } from "../components/world/cardCarouselComponents";
 import '../App.css';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
@@ -12,49 +11,52 @@ export default class WorldStats extends Component {
         this.state = {
             borders: [8,8],
             data: [],
-            currencyData: [],
-            indicieData: [],
+            currencyData: [null, null, null, null],
+            indicieData: [null, null, null, null],
             // updatingData: false,
         }
-        this.formatMainStats = this.formatMainStats.bind(this);
+        this.getCurrencyStats = this.getCurrencyStats.bind(this);
+        this.getIndicieStats = this.getIndicieStats.bind(this);
     }
 
     componentDidMount(){
-        this.formatMainStats();
+        this.getCurrencyStats();
+        this.getIndicieStats();
     }
 
-    async formatMainStats() {
-        console.log('start');
-        const mainCurrencies = ['CADUSD=X', 'CADEUR=X', 'CADGBP=X'];
-        const currencyData = await getMultipleTickers('currencies', 'currencies', mainCurrencies);
-        console.log(currencyData);
-        const mainIndicies = ["^GSPTSE", "^GSPC", "^DJI", "^IXIC"];
-        const indexData = await getMultipleTickers('indicies', 'indicies', mainIndicies);
-        console.log(indexData);
-        this.setState({currencyData: (currencyData !== null ? (currencyData) : ([])),
-            indicieData: (indexData !== null ? (indexData) : ([]))
-        });
+    async getCurrencyStats(){
+        const currencyData = await getAllOf('currencies', 'array');
+        this.setState({currencyData: (currencyData !== null ?
+                    (currencyData) : this.hasBadData(4)
+            )});
+    }
+
+    async getIndicieStats(){
+        const indexData = await getAllOf('indicies', 'array');
+        this.setState({indicieData: (indexData !== null ?
+                (indexData) : this.hasBadData(4)
+            )});
+    }
+
+
+
+
+    hasBadData = (amount) => {
+        let data = [];
+        for (let i = 0; i < amount; i++){
+            data.push(null);
+        }
+        return data;
     }
 
     render() {
-        function statCards(dataSource, borders){
-            const cards = dataSource.map( (stat) =>
-                <Col flex={1}>
-                    <WorldStatInfoCard data={stat}/>
-                </Col>);
-
-            return (
-                <Row className='gutter-row' justify='center' align='middle' gutter={borders}>
-                    {cards}
-                </Row>
-            );
-        }
         return (
             <div className='routerBackground'>
-                {statCards(this.state.indicieData, this.state.borders)}
-                {statCards(this.state.currencyData, this.state.borders)}
+                <CardCarousel data={this.state.indicieData} type='index'/>
+                <CardCarousel data={this.state.currencyData} type='exchange'/>
             </div>
         );
     }
+
 }
 

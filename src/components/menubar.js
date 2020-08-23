@@ -4,8 +4,6 @@ import { Row, Col, Space, Avatar, Button, Input} from 'antd';
 import { logout } from '../helpers/auth';
 import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
-// import 'antd/dist/antd.css';
-// import 'antd/dist/antd.less';
 import '../App.css';
 
 
@@ -47,43 +45,61 @@ export default class MenuBar extends Component {
     render () {
         function registeredUser(user) {
             return (
-                <Space size='large'>
+                <Space size='small'>
                     <Avatar
                         src={user.photoURL}
                         icon={<UserOutlined/>}
                         />
-                        <span style={{color: 'white'}}>
+                        <span style={{color: 'white', fontSize: '11px'}}>
                             { user.displayName === null
                                 ? (user.email)
                                 : (user.displayName)
-                            } &nbsp; &nbsp;
+                            } &nbsp;
                         </span>
                     <Button type='primary' icon={<ImportOutlined/>} onClick={logout}>
-                        <NavLink to='/welcome' style={{color: 'white'}}>
+                        <NavLink to='/stockViewer/world' style={{color: 'white'}}>
                             Logout
                         </NavLink>
                     </Button>
                 </Space>
             );
         }
+        const logoCol = {
+            'xs': 8,
+            'sm': 4,
+            'md': 4,
+            'lg': 4
+        }
+        const searchCol = {
+            'xs': 0,
+            'sm': 7,
+            'md': 9,
+            'lg': 12
+        }
+        const loginCol = {
+            'xs':15,
+            'sm':12,
+            'md':10,
+            'lg':7
+        }
 
 
         return(
             <Row align='center' justify='space-between' gutter={this.state.menuBarGutter}>
-                <Col flex={3}>
+                <Col {...logoCol}>
                     {/*Add logo??*/}
                     <h2 style={{color:'white'}}>
                         Stonks
                     </h2>
                 </Col>
-                <Col flex={6} offset={1}>
+                <Col {...searchCol}>
                     <Search
                         placeholder="Enter a Ticker"
-                        style={{width: '100%', paddingTop: '4%'}}
+                        style={{width: '100%', paddingTop: '16px'}}
                         onSearch={ (value) => console.log('search bar:',value)}
                         enterButton/>
                 </Col>
-                <Col flex={6} offset={4}>
+                <Col {...loginCol} style={{textAlign: 'right'}}>
                 {/*Login/ authenticated user*/}
                     { this.props.currentUser === null
                         ? (

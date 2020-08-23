@@ -1,8 +1,6 @@
 import { auth, realTime } from '../services/firebase';
-import { message } from 'antd';
-const stonkApi = 'http://localhost:5000/stonksAPI/v1'
+import { checkTickerExists } from "./APICommunication";
 
-//TODO: add rollback for failed transactions
 
 export async function addPosition(values, cost){
     const currentUser = auth().currentUser;
@@ -10,14 +8,9 @@ export async function addPosition(values, cost){
         return [false, null];
     }
     const uid = currentUser.uid;
-    //TODO: Add Check for valid ticker
-    const response = await fetch(`${stonkApi}/single/exists?ticker=${values.ticker}`);
-    const data = await response.json();
-    let badData = true;
-    if (data){
-        badData = false;
-    }
-    if (badData){
+    const data = checkTickerExists(values.ticker);
+
+    if (data === null){
         return false
     }
 
@@ -118,21 +111,6 @@ function logTransaction(uid, ticker, type, data){
         });
     }
 }
-
-export async function getMultipleTickers(type, arg, tickers){
-    try{
-        console.log(`${stonkApi}/${type}/multiple?${arg}=${tickers}`);
-        const result = await fetch(`${stonkApi}/${type}/multiple?${arg}=${tickers}`);
-        const resData = result.json();
-        console.log(resData)
-        return resData;
-    } catch (error){
-        console.log(error);
-        return null
-    }
-
-}
-
 
 export async function deleteStock(uid, values, cost){
 //TODO: add delete stocks

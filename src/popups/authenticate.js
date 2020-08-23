@@ -6,10 +6,8 @@ import {
        } from 'antd';
 import { auth } from 'firebase';
 import { GithubFilled, ChromeFilled, UserOutlined, LockOutlined, LockTwoTone } from '@ant-design/icons';
-import 'antd/dist/antd.css';
-import '../styles/login.css';
 import { signInWithProvider, signin, signup} from "../helpers/auth";
-
+import '../App.css';
 
 export default class Authenticate extends Component {
     constructor(props){
