@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import { Menu, Button } from 'antd';
-import { Link, NavLink } from 'react-router-dom';
+import { Menu } from 'antd';
+import { NavLink } from 'react-router-dom';
 import { auth } from '../services/firebase';
-import { RocketOutlined, BankOutlined, GlobalOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { BankOutlined, GlobalOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 // import 'antd/dist/antd.css';
 import '../App.css';
 
@@ -52,7 +52,7 @@ export default class SideBar extends Component {
                 <Menu.Item
                     icon={<GlobalOutlined/>}
                     key='/world'>
-                    <NavLink to={'/'}>
+                    <NavLink to={'/stockViewer/'}>
                         World
                     </NavLink>
                 </Menu.Item>
@@ -67,7 +67,7 @@ export default class SideBar extends Component {
                     icon={<BankOutlined />}
                     key='/portfolio'
                     disabled={!this.props.authenticated}>
-                    <NavLink to={'/portfolio'}>
+                    <NavLink to={'/stockViewer/portfolio'}>
                         Portfolio
                     </NavLink>
                 </Menu.Item>

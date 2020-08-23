@@ -1,9 +1,8 @@
 import React, { Component, createRef } from 'react';
 import {Modal, Button, Form, Input, Select, notification, Space, Col, Row, message} from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import '../styles/portfolio.css';
-// import {getAllTickers, addPosition} from "../helpers/firebaseCommunication";
 import { addPosition } from "../helpers/rtdbCommunication";
+import '../App.css';
 
 const { Option } = Select;
 
@@ -123,13 +122,15 @@ export default class AddStock extends Component{
               <Button type="primary" icon={<PlusOutlined/>} onClick={this.showAddStock} disabled={this.props.updatingData}/>
               <Modal
                   title="Add A Stock"
+
                   visible={this.state.visible}
                   maskClosable={false}
                   closable={false}
                   footer={[
-                      <p>
-                          Ticker should be in form "Ticker.Exchange" i.e. "BAM-A.TO". If you are unsure, please check at <a href='https://ca.finance.yahoo.com'>Yahoo Finance</a>
-                      </p>
+                      <span>
+                          Ticker should be in form "Ticker.Exchange" i.e. "BAM-A.TO".
+                          If you are unsure, please check at <a href='https://ca.finance.yahoo.com'>Yahoo Finance</a>.
+                      </span>
 
                   ]}
                   >
@@ -155,22 +156,6 @@ export default class AddStock extends Component{
                       >
                           <Input />
                       </Form.Item>
-                      {/*<Form.Item*/}
-                      {/*    name='exchange'*/}
-                      {/*    label='Stock Exchange'*/}
-                      {/*    rules={[*/}
-                      {/*        {*/}
-                      {/*            required:true,*/}
-                      {/*            message: 'Select an Exchange'*/}
-                      {/*        }*/}
-                      {/*    ]}*/}
-                      {/*>*/}
-                      {/*    <Select>*/}
-                      {/*        <Option value='xtse'>TSX</Option>*/}
-                      {/*        /!*<Option value='tsxMutual'>Mutual Fund TSX</Option>*!/*/}
-                      {/*        <Option value='US'>Any US Exchange</Option>*/}
-                      {/*    </Select>*/}
-                      {/*</Form.Item>*/}
                       <Form.Item
                           name='category'
                           label='Market Sector'
@@ -184,7 +169,6 @@ export default class AddStock extends Component{
                           <Select>
                               <Option value="Technology">Technology</Option>
                               <Option value="Communication">Communication</Option>
-                              {/*Is this consumer non-cyc*/}
                               <Option value="Consumer Discretionary">Consumer Discretionary</Option>
                               <Option value="Consumer Staple">Consumer Staples</Option>
                               <Option value='Energy'>Energy</Option>
@@ -213,6 +197,7 @@ export default class AddStock extends Component{
                           rules={[
                               { required: true, message: "A stock must have a cost."}
                           ]}
+                          extra="Currency is in the default currency for this ticker"
                       >
                           <Input
                               addonBefore={costTypeSelector}

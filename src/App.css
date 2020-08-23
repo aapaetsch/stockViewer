@@ -1,18 +1,18 @@
 @import '~antd/dist/antd.css';
-.App {
-  text-align: center;
+:root {
+  --border-bg-color: #367e80;
+  --main-bg-color: #363a46;
+  --page-bg-color: #141414;
+  --card-bg-color: #f5f5f5;
+  --primary-color: #35d0c6;
+  --primary-color-clicked: #82e2d5;
+  --neutral-color: #000000;
+  --positive-color: #52c41a;
+  --negative-color: #f5222d;
+  --positive-large-color: #722ed1;
+
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
 
 .App-header {
   background-color: #282c34;
@@ -25,20 +25,6 @@
   color: white;
 }
 
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-
 .site-card-border-less-wrapper {
   background: #ececec;
 }
@@ -47,7 +33,7 @@
 /*Portfolio themes*/
 .gutter-row{
   padding: 3px 3px;
-  background: #141414;
+  background: var(--page-bg-color);
 }
 
 .routerBackground {
@@ -55,7 +41,7 @@
   padding-right: 8px;
   padding-top: 72px;
   height: 200vh;
-  background: #141414;
+  background: var(--page-bg-color);
 }
 
 .negative{
@@ -63,15 +49,15 @@
   font-size: 11px;
 }
 .smallPositive{
-  color:#000000;
+  color: var(--neutral-color);
   font-size: 11px;
 }
 .mediumPositive{
-  color:#52c41a;
+  color: var(--positive-color);
   font-size: 11px;
 }
 .largePositive{
-  color:#722ed1;
+  color: var(--positive-large-color);
   font-size: 11px;
 }
 
@@ -95,7 +81,7 @@
 }
 
 .linkHover:hover {
-  color: #82e2d5;
+  color: var(--primary-color-clicked);
   cursor: pointer;
   text-decoration: underline;
 }
@@ -110,54 +96,70 @@
 }
 /*Div Cards*/
 .stonkCardHeader {
-  background-color: #367e80;
+  background-color: var(--border-bg-color);
   border-top-right-radius: 25px;
   border-top-left-radius: 25px;
   min-height: 48px;
   margin-bottom: -1px;
-  padding-bottom: 8px;
-  padding-top: 10px;
+  padding-bottom: 9px;
+  padding-top: 16px;
   text-align: center;
 }
 .stonkCardBody {
-  background-color: #f5f5f5;
+  background-color: var(--card-bg-color);
   border-bottom-left-radius: 25px;
   border-bottom-right-radius: 25px;
   padding-bottom: 25px;
   text-align: center;
 }
 
+/*lastUpdated text*/
+.lastUpdateText {
+  color: #bfbfbf;
+  font-size: 10px;
+}
+
+@media (max-width: 847px){
+  .carouselWithDots {
+    padding-top: 20px;
+  }
+}
+
+.ant-carousel .slick-dots-bottom{
+  bottom: -20px;
+}
+
 /*Antd theme overwrites */
 .ant-btn-primary {
-  background: #35d0c6;
-  border-color: #35d0c6;
+  background: var(--primary-color);
+  border-color: var(--primary-color);
 }
 .ant-btn:hover {
   color: white;
 }
 .ant-btn-primary:hover,
 .ant-btn-primary:focus {
-  background: #82e2d5;
-  border-color: #82e2d5;
+  background: var(--primary-color-clicked);
+  border-color: var(--primary-color-clicked);
 }
 /*Ant toggle overwrites*/
 .ant-switch-checked {
-  background-color: #35d0c6;
+  background-color: var(--primary-color);
 }
 /*Ant Menu overwrites*/
 .ant-layout-header,
 .ant-layout-sider,
 .ant-menu {
-  background: #363a46;
-  border-right-color: #363a46;
+  background: var(--main-bg-color);
+  border-right-color: var(--main-bg-color);
   color: #fff !important;
 }
 .ant-menu-item-disabled, .ant-menu-item-disabled a{
-  color: #000000 !important;
+  color: var(--neutral-color) !important;
 }
 .ant-menu-item-selected{
-  background-color: #35d0c6 !important;
-  border-right-color: #367e80 !important;
+  background-color: var(--primary-color) !important;
+  border-right-color: var(--border-bg-color) !important;
   color: #fff !important;
 }
 .ant-menu-item-selected a,.ant-menu-item-selected a:hover {
@@ -168,13 +170,13 @@
 }
 
 .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-danger.ant-menu-item-selected {
-  background-color: #82e2d5 !important;
+  background-color: var(--primary-color-clicked) !important;
 }
 .ant-menu-inline-collapsed .ant-menu-item::after, .ant-menu-inline .ant-menu-item::after {
-  border-right-color: #367e80 !important;
+  border-right-color: var(--border-bg-color) !important;
 }
 .ant-menu-item::after {
-  background-color: #363a46;
+  background-color: var(--main-bg-color);
 }
 
 .ant-menu-item a{
@@ -184,13 +186,13 @@
   /*Ant card overwrites*/
 .ant-card {
   border-radius: 25px !important;
-  background: #367e80;
+  background: var(--border-bg-color);
 }
 .ant-card-head {
   color: #fff;
 }
 .ant-card-bordered {
-  border: 1px solid #363a46;
+  border: 1px solid var(--main-bg-color);
 }
 .ant-card-hoverable:hover {
   border-color: #e0fbf5;
@@ -198,17 +200,41 @@
 .ant-card-body{
   border-bottom-left-radius: 25px;
   border-bottom-right-radius: 25px;
-  background: #f5f5f5;
+  background: var(--card-bg-color);
 }
 /*Ant modal overwrites*/
-.ant-modal-header {
-  background-color: #363a46;
+.ant-modal-title {
   color: #fff;
 }
+.ant-modal-header {
+  background-color: var(--main-bg-color);
+  color: #fff;
+  text-align: center;
+}
 .ant-modal-content {
-  background-color: #363a46;
+  background-color: var(--main-bg-color);
   color: #fff;
 }
 .ant-modal-close {
   color: #fff;
+}
+.ant-modal-footer {
+  text-align: left;
+}
+/*Ant message overwrites*/
+.ant-message-success .anticon {
+  color: var(--primary-color);
+}
+
+/*Ant form overwrites*/
+.ant-form-item-label > label {
+  color: #fff;
+}
+
+.ant-form-item-extra {
+  color: #fff;
+}
+/*Slick slides overwrites*/
+.slick-slide {
+  padding: 0 8px;
 }

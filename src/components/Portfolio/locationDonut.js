@@ -35,9 +35,7 @@ export default class LocationDonut extends Component {
                 let locationWeightsCurrent = {};
 
                 if (this.props.data.length !== 0){
-                    console.log(this.props.data)
                     this.props.data.forEach( (positions) => {
-                        console.log(positions)
                         try {
                             locationWeightsOriginal[positions.location].Weight += Number(positions.originalPercent);
                             locationWeightsCurrent[positions.location].Weight += Number(positions.portfolioPercent);
@@ -52,7 +50,6 @@ export default class LocationDonut extends Component {
                         dataCurrent.push({'Weight': locationWeightsCurrent[key].Weight.toFixed(2), 'exchange': locationWeightsCurrent[key].exchange});
                     });
                 }
-                console.log(dataCurrent)
                 this.setState({originalData: dataOriginal, currentData: dataCurrent, formattedData: dataCurrent, updating: false});
             });
         }
@@ -85,9 +82,9 @@ export default class LocationDonut extends Component {
                             (<Donut {...locationDonut}/>)
                             :(<Skeleton active/>)}
                     </Col>
-                    <Col span={24}>
-                        ...largest location, smallest location
-                    </Col>
+                    {/*<Col span={24}>*/}
+                    {/*    ...largest location, smallest location*/}
+                    {/*</Col>*/}
                 </Row>
             </Card>
         );

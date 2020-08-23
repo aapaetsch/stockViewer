@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import { auth } from './services/firebase';
 import { Route, BrowserRouter as Router, Switch, Redirect } from 'react-router-dom';
-import {Col, Row, Layout, Menu, Button, Affix} from "antd";
-import {MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { Layout, Affix} from "antd";
 import MenuBar from "./components/menubar";
 import SideBar from "./components/sideBar";
-import MainPage from "./pages/mainpage";
-import WelcomePage from './pages/welcomePage';
 import WorldStats from './pages/worldStats';
 import Portfolio from "./pages/Portfolio";
 import './App.css';
@@ -19,7 +16,7 @@ function PrivateRoute({ component: Component, authenticated, ...rest}){
             {...rest}
             render={(props) => authenticated === true
                 ? <Component />
-                : <Redirect to={{pathname: '/', state: {from: props.location}}}/>
+                : <Redirect to={{pathname: '/stockViewer/', state: {from: props.location}}}/>
             }
             />
     );
@@ -29,7 +26,7 @@ function PublicRoute({ component: Component, authenticated, ...rest}){
         <Route {...rest}
             render={ (props) => authenticated === false
                 ? <Component {...props}/>
-                : <Redirect to={'/'}/>
+                : <Redirect to={'/stockViewer/'}/>
             }
                 />
     )
@@ -107,9 +104,9 @@ export default class App extends Component {
                             <Content>
                                 {/*Here is the router for the content*/}
                                     <Switch>
-                                        <Route exact path={'/'} component={WorldStats}/>
+                                        <Route exact path={'/stockViewer'} component={WorldStats}/>
                                         <PrivateRoute
-                                            path='/portfolio'
+                                            path='/stockViewer/portfolio'
                                             authenticated={this.state.authenticated}
                                             component={Portfolio}
                                         />

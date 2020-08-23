@@ -24,7 +24,7 @@ export default class CategoryRadar extends Component {
     }
 
     componentDidUpdate(prevProps) {
-        console.log('update', prevProps, this.props);
+        // console.log('update', prevProps, this.props);
         if (this.props !== prevProps){
             this.formatData();
         }
@@ -54,8 +54,8 @@ export default class CategoryRadar extends Component {
 
             this.state.marketSectors.forEach( (sector) => {
                 try{
-                    radarData.push({'Market Sector': sector, Weight: currentWeight[sector].weight, Type: 'Current'},
-                        {'Market Sector': sector, Weight: originalWeight[sector].weight, Type: 'Original'});
+                    radarData.push({'Market Sector': sector, Weight: currentWeight[sector].weight.toFixed(2), Type: 'Current'},
+                        {'Market Sector': sector, Weight: originalWeight[sector].weight.toFixed(2), Type: 'Original'});
                 } catch(error){
                     console.log(error);
                 }
@@ -65,12 +65,15 @@ export default class CategoryRadar extends Component {
 
 
         }
+        radarData.sort( (a, b) => {
+            return a.Weight - b.Weight
+        })
         this.setState({formattedData: radarData});
     }
 
     render() {
         const categoryPlot = {
-            // forceFit: true,
+            forceFit: true,
             title:{
                 visible: false,
                 text: 'Market Sector Radar'
@@ -78,7 +81,19 @@ export default class CategoryRadar extends Component {
             angleField: 'Market Sector',
             radiusField: 'Weight',
             seriesField: 'Type',
-            radiusAxis: { grid: {line: {type: 'line'} } },
+            radiusAxis: {
+                grid: {
+                    line: {
+                        type: 'line'
+                    }
+                },
+                min: 0
+            },
+            angleAxis: {
+              label: {
+                  offset: -3,
+              }
+            },
             line: { visible: true},
             area: {
                 visible: true,
@@ -92,7 +107,7 @@ export default class CategoryRadar extends Component {
             },
             legend: {
                 visible: true,
-                position: 'bottom-center',
+                position: 'top-center',
             },
         };
         return (
@@ -105,11 +120,11 @@ export default class CategoryRadar extends Component {
                         }
                     </Col>
                 </Row>
-                <Row>
-                    <Col span={24}>
-                        ...heaviest industyr, lightest industyr, original heavy, original light
-                    </Col>
-                </Row>
+                {/*<Row>*/}
+                {/*    <Col span={24}>*/}
+                {/*        ...heaviest industyr, lightest industyr, original heavy, original light*/}
+                {/*    </Col>*/}
+                {/*</Row>*/}
             </Card>
 
         );
