@@ -1,6 +1,6 @@
 import React, { Component, createRef } from 'react';
+import {auth} from '../services/firebase'
 import {Modal, Button, Form, Input, Select, notification, Space, Col, Row, message} from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
 import { addPosition } from "../helpers/rtdbCommunication";
 import '../App.css';
 
@@ -33,7 +33,7 @@ export default class AddStock extends Component{
             } else {
                 totalCost = Number(values.cost);
             }
-            message.loading("Add Stock in Progress...", 3);
+            message.loading({content:"Add Stock in Progress...", key:'add'}, 0);
             await addPosition(values, totalCost)
                 .then((success) => {
                     console.log(success);
@@ -44,14 +44,18 @@ export default class AddStock extends Component{
                                 message: 'Added Stock Successfully',
                                 description: this.notificationContent(values, totalCost)
                             });
+                            if (this.props.setPortfolioListener !== undefined){
+                                this.props.setPortfolioListener()
+                            }
                         } else {
                             notification['success']({
                                 message: 'Updated Stock Successfully',
                                 description: this.updatePositionContent(success[2])
                             });
                         }
+                        message.success({content: '', key:'add'}, 0.01)
                     } else {
-                        message.error('There was an error adding the position.')
+                        message.error({content:'Could not find the ticker',key:'add'},0)
                     }
                     this.hideAddStock();
                 })
@@ -119,7 +123,12 @@ export default class AddStock extends Component{
         return (
           <div>
               {/*TODO: only enable add if a user is logged in.*/}
-              <Button type="primary" icon={<PlusOutlined/>} onClick={this.showAddStock} disabled={this.props.updatingData}/>
+              <Button type="primary"
+                      icon={this.props.icon}
+                      onClick={this.showAddStock}
+                      disabled={this.props.updatingData}>
+                  {this.props.buttonText}
+              </Button>
               <Modal
                   title="Add A Stock"
 
@@ -139,7 +148,7 @@ export default class AddStock extends Component{
                       layout='horizontal'
                       size='medium'
                       initialValues={{
-                          costType: 'perShare',
+                          ...this.props.initial
                       }}
                       ref={this.formRef}
                       onFinish={this.addStockOk}

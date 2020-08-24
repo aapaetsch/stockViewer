@@ -8,9 +8,9 @@ export async function addPosition(values, cost){
         return [false, null];
     }
     const uid = currentUser.uid;
-    const data = checkTickerExists(values.ticker);
+    const data = await checkTickerExists(values.ticker);
 
-    if (data === null){
+    if (data === null || data === false){
         return false
     }
 

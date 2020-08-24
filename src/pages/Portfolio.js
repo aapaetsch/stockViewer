@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
-import { Row, Col, message } from 'antd';
+import { Row, Col, message, Card } from 'antd';
 import StockList from "../components/Portfolio/stocklist";
 import LocationDonut from '../components/Portfolio/locationDonut';
 import CategoryRadar from '../components/Portfolio/categoryRadar';
 import { auth, realTime } from '../services/firebase';
-import RecentTransactionCard from "../components/Portfolio/recentTransactionCard";
-import { getMultipleTickers, getAllOf } from "../helpers/APICommunication";
+import RecentTransactionTable from "../components/Portfolio/recentTransactionCard";
+import {getMultipleTickers, getAllOf, updateMyTickers} from "../helpers/APICommunication";
 import { getConversionRatio } from "../helpers/exchangeFxns";
 import '../App.css';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
@@ -29,7 +29,9 @@ export default class Portfolio extends Component {
     componentDidMount(){
 
         try{
-            fetch(stonkApi + '/update/world');
+            fetch(stonkApi + '/update/world', {
+                method: 'POST'
+            });
 
         } catch (error){
             console.log('Error: failed to fetch from api');
@@ -58,10 +60,23 @@ export default class Portfolio extends Component {
     }
 
     setPortfolioListener = (uid) => {
-        this.portfolioListener = realTime.ref('/portfolios/' + uid).on('value', (positions) => {
-            fetch()
-            this.formatData(positions);
-        });
+        try{
+            this.portfolioListener = realTime.ref('/portfolios/' + uid).on('value', (positions) => {
+
+                try{
+                    updateMyTickers(Object.keys(positions.val()));
+                    this.formatData(positions);
+
+                } catch(error){
+                    console.log(error);
+                    return false
+                }
+
+            });
+        } catch(error) {
+            console.log(error)
+        }
+
     }
 
     setPortfolio = async (portfolio, tickers) => {
@@ -231,6 +246,7 @@ export default class Portfolio extends Component {
     render(){
 
         const colSize = {
+            'xs': 24,
             'sm': 24,
             'md': 24,
             'lg': 8,
@@ -251,7 +267,6 @@ export default class Portfolio extends Component {
                     </Col>
                 </Row>
                 <Row  justify='center' gutter={this.state.borders}>
-
                     <Col  {...colSize}>
                         <CategoryRadar data={this.state.data}/>
                     </Col>
@@ -259,9 +274,17 @@ export default class Portfolio extends Component {
                         <LocationDonut data={this.state.data}/>
                     </Col>
                     <Col {...colSize}>
-                        <RecentTransactionCard
-                            data={this.state.data}
-                            currency={this.state.currency}/>
+                            <div>
+                                <div className='stonkCardHeader'>
+                                    <h3 style={{color: '#fff'}}>Recent Transactions</h3>
+                                </div>
+                                <div className='stonkCardBody'>
+                                    <RecentTransactionTable
+                                        data={this.state.data}
+                                        singleStock={false}
+                                        currency={this.state.currency}/>
+                                </div>
+                            </div>
                     </Col>
                 </Row>
             </div>
