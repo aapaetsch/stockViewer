@@ -37,14 +37,13 @@ export default class LocationDonut extends Component {
                 if (this.props.data.length !== 0){
                     this.props.data.forEach( (positions) => {
                         try {
-                            locationWeightsOriginal[positions.location].Weight += Number(positions.originalPercent);
-                            locationWeightsCurrent[positions.location].Weight += Number(positions.portfolioPercent);
+                            locationWeightsOriginal[positions.exchange].Weight += Number(positions.originalPercent);
+                            locationWeightsCurrent[positions.exchange].Weight += Number(positions.portfolioPercent);
                         } catch {
-                            locationWeightsOriginal[positions.location] = {'Weight': Number(positions.originalPercent), 'exchange': positions.exchange};
-                            locationWeightsCurrent[positions.location] = {'Weight': Number(positions.portfolioPercent), 'exchange': positions.exchange};
+                            locationWeightsOriginal[positions.exchange] = {'Weight': Number(positions.originalPercent), 'exchange': positions.exchange};
+                            locationWeightsCurrent[positions.exchange] = {'Weight': Number(positions.portfolioPercent), 'exchange': positions.exchange};
                         }
                     });
-
                     Object.keys(locationWeightsOriginal).forEach( (key, index) => {
                         dataOriginal.push({'Weight': locationWeightsOriginal[key].Weight.toFixed(2), 'exchange': locationWeightsOriginal[key].exchange});
                         dataCurrent.push({'Weight': locationWeightsCurrent[key].Weight.toFixed(2), 'exchange': locationWeightsCurrent[key].exchange});
@@ -57,6 +56,7 @@ export default class LocationDonut extends Component {
 
     render(){
         const data = this.state.formattedData;
+        console.log(data)
         const locationDonut = {
             // forceFit: true,
             title: {

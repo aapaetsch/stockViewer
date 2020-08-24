@@ -96,9 +96,6 @@ const ExchangeStatistic = props => {
     return <Statistic value={props.value} precision={2} prefix={exchange}/>
 }
 
-
-
-
 export const WorldStatInfoCard = (props) => {
 
     const titleSkeleton = <Skeleton.Input active style={{width: 100, textAlign: 'center'}} size='small'/>
@@ -113,7 +110,7 @@ export const WorldStatInfoCard = (props) => {
                     <div>
                         {props.type === 'exchange' ?
                             (<ExchangeStatistic value={props.data.value} exchange={props.data.name}/>):
-                            (<Statistic value={props.data.value} precision={2}/>)
+                            (<Statistic value={props.data.value} precision={2} prefix={getCurrencySymbol(props.data.currency)}/>)
                         }
 
                         <Statistic

@@ -1,10 +1,12 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Row, Col, Space, Avatar, Button, Input} from 'antd';
+import {Row, Col, Space, Avatar, Button, Input, Modal, message} from 'antd';
 import { logout } from '../helpers/auth';
 import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
 import '../App.css';
+import {checkTickerExists} from "../helpers/APICommunication";
+import StockDataDisplay from "./Portfolio/tableInternal";
 
 
 const { Search } = Input;
@@ -96,7 +98,28 @@ export default class MenuBar extends Component {
                     <Search
                         placeholder="Enter a Ticker"
                         style={{width: '100%', paddingTop: '16px'}}
-                        onSearch={ (value) => console.log('search bar:',value)}
+                        onSearch={ async (value) => {
+                            message.loading({content: 'Searching for ticker...', key: 'searchMessage'},0)
+                            const data = await checkTickerExists(value.toUpperCase())
+                            console.log(data)
+                            if (data !== null && data !== false){
+                                message.success({content: `${value.toUpperCase()} found!`, key: 'searchMessage'}, 1)
+                                if (data.length !== 0){
+                                    Modal.info({
+                                        content: <StockDataDisplay data={data[0]} owned={false}/>,
+                                        title:
+                                            <h2 style={{ alignSelf: 'center'}}>
+                                                    {`${data[0].title}`}
+                                                </h2>,
+                                        width: '60%',
+                                        icon: null,
+                                        className: 'loginCard'
+                                    })
+                                }
+                            } else {
+                                message.error({content: `Could not find ${value} `, key: 'searchMessage'}, 1);
+                            }
+                        }}
                         enterButton/>
                 </Col>
                 <Col {...loginCol} style={{textAlign: 'right'}}>

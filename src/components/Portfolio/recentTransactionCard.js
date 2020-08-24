@@ -1,11 +1,12 @@
 import React, {Component} from 'react';
-import {Table, DatePicker } from 'antd';
+import {Table, DatePicker, Space, Button } from 'antd';
 import {getConversionRatio, getCurrencySymbol} from "../../helpers/exchangeFxns";
 import { getAllOf } from "../../helpers/APICommunication";
+import { SearchOutlined } from '@ant-design/icons';
 import '../../App.css';
 const { RangePicker } = DatePicker;
 
-export default class RecentTransactionCard extends Component {
+export default class RecentTransactionTable extends Component {
     constructor(props){
         super(props);
         this.state = {
@@ -21,6 +22,7 @@ export default class RecentTransactionCard extends Component {
     componentDidMount() {
         this.sortData();
     }
+
     shouldComponentUpdate(nextProps, nextState, nextContext) {
         return this.props !== nextProps || this.state !== nextState;
     }
@@ -31,10 +33,28 @@ export default class RecentTransactionCard extends Component {
         }
     }
 
+    valueAdjustCurrency = async (data) => {
+
+        const currencyData = await getAllOf('currencies', 'object');
+        if (currencyData){
+
+            for (let i = 0; i < data.length; i++){
+
+                if (data[i].currency !== 'USD'){
+                    const ratio = getConversionRatio(currencyData, data[i].currency, 'USD')
+
+                    if (ratio !== null){
+                        data[i].value = data[i].value * ratio;
+                    }
+                }
+            }
+        }
+        return data
+    }
+
     sortData = () => {
         if (this.state.loading === false && this.props.data.length !== 0){
             this.setState({loading: true}, async () => {
-                const currencyData = await getAllOf('currencies', 'object');
                 let data = [];
                 let tickers = [];
 
@@ -64,13 +84,6 @@ export default class RecentTransactionCard extends Component {
                             let tList = t.split(' ');
                             let value = Number(tList[0]) * Number(tList[4].substring(1));
 
-                            if (this.props.data[i].currency !== 'USD'){
-                                const ratio = getConversionRatio(currencyData, this.props.data[i].currency, 'USD');
-
-                                if (ratio !== null){
-                                    value = value * ratio
-                                }
-                            }
 
                             data.push({
                                 ticker: this.props.data[i].ticker,
@@ -79,10 +92,12 @@ export default class RecentTransactionCard extends Component {
                                 action: t,
                                 value: value,
                                 type: type,
+                                currency: this.props.data[i].currency,
                             });
                         }
 
                     }
+                    data = await this.valueAdjustCurrency(data);
 
                     data.sort((a, b) => {
                         return new Date(b.date) - new Date(a.date);
@@ -118,30 +133,40 @@ export default class RecentTransactionCard extends Component {
         this.setState({start: start, end: end});
     }
 
+    disabledDates = (type, current) => {
+        console.log(current);
+        if (type === 'start'){
+            return current && current > this.state.end;
+        } else {
+            return current && current < this.state.start
+        }
+    }
+
+    changeStartDate = (date, dateString) => {
+        this.setState({start: new Date(date + ' 00:00:00')});
+    }
+
+    disableStartDate = (current) => {
+        if (this.state.end !== null){
+            return current && current > this.state.end;
+        }
+    }
+
+    changeEndDate = (date, dateString) => {
+        this.setState({end: new Date(date + ' 23:59:59')});
+    }
+
+    disableEndDate = (current) => {
+        return current && current < this.state.start;
+    }
+
+
+
     render(){
-        const columns = [
+
+        let columns = [
             {
                 title: 'Date', dataIndex: 'date',
-                filterDropdown: () => {return <RangePicker
-                                                    allowEmpty={[true, true]}
-                                                    onCalendarChange={this.onDateRangeChange}/>},
-                onFilter: (value, record) => {
-                    let day = new Date(record.date);
-
-                    if (this.state.start === null){
-                        console.log(day, day <= this.state.end);
-                        return day <= this.state.end;
-
-                    } else if (this.state.end === null){
-                        console.log(day,  day >= this.state.start);
-                        return day >= this.state.start;
-
-                    } else {
-                        console.log(day, day <= this.state.end && day >= this.state.start);
-                        return (day <= this.state.end && day >= this.state.start);
-                    }
-
-                },
             },
             {
                 title: 'Type', dataIndex: 'type',
@@ -161,23 +186,20 @@ export default class RecentTransactionCard extends Component {
             }
         ]
 
+        if (this.props.singleStock){
+            columns.splice(2,1)
+        }
+
         return (
-            <div>
-                <div className='stonkCardHeader'>
-                    <h3 style={{color: '#fff'}}>Recent Transactions</h3>
-                </div>
-                <div className='stonkCardBody'>
-                    <Table
-                        columns={columns}
-                        dataSource={this.state.data}
-                        loading={this.state.loading}
-                        rowClassName='recentTransaction'
-                        size='small'
-                        pagination={false}
-                        scroll={{y:450}}
-                    />
-                </div>
-            </div>
+            <Table
+                columns={columns}
+                dataSource={this.state.data}
+                loading={this.state.loading}
+                rowClassName='recentTransaction'
+                size='small'
+                pagination={false}
+                scroll={{y:450}}
+            />
         );
     }
 }

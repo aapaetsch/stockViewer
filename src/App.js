@@ -87,7 +87,7 @@ export default class App extends Component {
                             <Sider
                                 breakpoint='lg'
                                 collapsible
-                                style={{height: '200vh', zIndex:0}}
+                                style={{zIndex:0}}
                                 collapsed={this.state.collapsed}
                                 trigger={null}
                                 >

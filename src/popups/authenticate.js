@@ -136,6 +136,7 @@ export default class Authenticate extends Component {
                     title={(<h2 style={{textAlign: 'center', color: '#fff'}}>{this.props.title}</h2>)}
                     visible={this.props.visible}
                     onCancel={this.hideAuthentication}
+                    className='loginCard'
                     footer={switchScreen(this.props.title, this.props.changeAuthenticateType)}>
                     <Form
                         name='normal_login'

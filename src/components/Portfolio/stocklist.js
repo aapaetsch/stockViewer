@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
-import {Row, Col, Table, Select, Space, notification, Skeleton} from 'antd';
+import {Row, Col, Table, Select, Space, notification, Skeleton, Modal} from 'antd';
 import { auth } from '../../services/firebase';
 import AddStock from "../../popups/addStock";
 import { getCurrencySymbol } from "../../helpers/exchangeFxns";
 import TableInternal from "./tableInternal";
 import '../../App.css';
+import StockDataDisplay from "./tableInternal";
+import { PlusOutlined } from '@ant-design/icons';
+
 
 const { Option } = Select;
 
@@ -212,7 +215,10 @@ export default class StockList extends Component {
                                 <Option value='Default'>Default</Option>
                             </Select>
                             &nbsp;
-                            <AddStock />
+                            <AddStock icon={<PlusOutlined/>}
+                                      buttonText=''
+                                      initial={{costType: 'perShare'}}
+                            />
                         </Space>
                     </Col>
                 </Row>
@@ -220,54 +226,73 @@ export default class StockList extends Component {
                 <div className='stonkCardBody'>
                     <Skeleton loading={this.props.data.length === 0} active>
                         <Table
-                            rowClassName={ (record, index) => {
-                                return `${colorSwitcher(record['profitPercent'])}`;
-                            }}
-                            expandable={{
-                                expandedRowRender: (record, index) => {
-                                    return <TableInternal data={record}/>
-                                },
-                                expandRowByClick: true
-                            }}
-
                             columns={stockListColumns}
                             pagination={false}
-                            scroll={{x: 1000, y:400}}
+                            scroll={{x: 1200, y:500}}
                             dataSource={this.props.data}
                             loading={this.state.showLoading}
                             size="small"
                             style={{borderRadius: '25px'}}
-
+                            rowClassName={ (record, index) => {
+                                return `${colorSwitcher(record['profitPercent'])} hoverTableRows`;
+                            }}
+                            // expandable={{
+                            //     expandedRowRender: (record, index) => {
+                            //         return <TableInternal data={record}/>
+                            //     },
+                            //     expandRowByClick: true
+                            // }}
+                            onRow={ (record, rowIndex) => {
+                                return {
+                                    onClick: event => {
+                                        Modal.info({
+                                            content: <StockDataDisplay data={record} owned={true}/>,
+                                            title:
+                                                <h2 style={{ alignSelf: 'center'}}>
+                                                    {`${record.title}`}
+                                                </h2>,
+                                            width: '80%',
+                                            icon: null,
+                                            className: 'loginCard'
+                                        })
+                                    }
+                                }
+                            }}
                             summary={ () => (
-                                <Table.Summary.Row style={{backgroundColor: '#f5f5f5'}}>
-                                    <Table.Summary.Cell index={1} colRow={3} style={{backgroundColor: '#f5f5f5'}}>{`Total`}</Table.Summary.Cell>
-                                    <Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/>
-                                    <Table.Summary.Cell index={6}>
+                                <Table.Summary.Row style={{backgroundColor: '#fff'}}>
+                                    <Table.Summary.Cell index={0} style={{backgroundColor: '#f5f5f5'}}>{`Total`}</Table.Summary.Cell>
+                                    <Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/><Table.Summary.Cell/>
+                                    <Table.Summary.Cell index={5}>
                                         {this.props.currency === 'Default' ?
                                             (getCurrencySymbol('CAD')) :
                                             (getCurrencySymbol(this.props.currency))
                                         } {this.props.totalBookValue.toFixed(2)
-                                                .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                        .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                    </Table.Summary.Cell>
+                                    <Table.Summary.Cell index={6}>
+                                        {this.props.currency === 'Default' ?
+                                            (getCurrencySymbol('CAD')) :
+                                            (getCurrencySymbol(this.props.currency))
+                                        } {this.props.currentTotal.toFixed(2)
+                                        .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell index={7}>
                                         {this.props.currency === 'Default' ?
                                             (getCurrencySymbol('CAD')) :
                                             (getCurrencySymbol(this.props.currency))
-                                        } {this.props.currentTotal.toFixed(2)
-                                                .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                        } {(this.props.currentTotal - this.props.totalBookValue).toFixed(2)
+                                        .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell index={8}>
-                                        {this.props.currency === 'Default' ?
-                                            (getCurrencySymbol('CAD')) :
-                                            (getCurrencySymbol(this.props.currency))
-                                        } {(this.props.currentTotal - this.props.totalBookValue).toFixed(2)
-                                                .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
-                                    </Table.Summary.Cell>
-                                    <Table.Summary.Cell index={9}>
                                         {((this.props.currentTotal/this.props.totalBookValue) * 100).toFixed(2)} %
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                             )}
+
+
+
+
+
                         />
                     </Skeleton>
                 </div>

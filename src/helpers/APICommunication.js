@@ -2,7 +2,16 @@ import { auth } from '../services/firebase';
 const stonkApi = 'http://localhost:5000/stonksAPI/v1'
 
 export async function updateMyTickers(tickers){
-    await fetch()
+    try {
+        const result = await fetch(`${stonkApi}/update/myTickers?tickers=${tickers}`, {
+            method: 'POST'
+        });
+        return await result.json()
+
+    } catch(error){
+        console.log(error)
+        return null
+    }
 }
 
 export async function getMultipleTickers(type, arg, tickers){
@@ -48,5 +57,18 @@ export async function getAllOf(type, form){
     } catch(error){
         console.log(error);
         return null;
+    }
+}
+
+export async function getHistoricalData(ticker){
+
+    try{
+        const response = await fetch(`${stonkApi}/historical/single?ticker=${ticker}`);
+        return await response.json();
+
+    } catch(error){
+        console.log(error);
+        return null
+
     }
 }
