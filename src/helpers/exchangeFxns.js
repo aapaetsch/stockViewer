@@ -54,3 +54,24 @@ export function getConversionRatio(currencies, curr1, curr2) {
     }
 }
 
+export function addCommas (value) {
+    return value.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+export function colorSwitcher(int) {
+    const value = Number(int);
+
+    if (value >= 100){
+        return 'largePositive';
+
+    } else if (value > 25){
+        return 'mediumPositive';
+
+    } else if (value < 0){
+        return 'negative';
+
+    } else {
+        return 'smallPositive';
+    }
+}
+

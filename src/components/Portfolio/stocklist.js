@@ -2,8 +2,8 @@ import React, { Component } from 'react';
 import {Row, Col, Table, Select, Space, notification, Skeleton, Modal} from 'antd';
 import { auth } from '../../services/firebase';
 import AddStock from "../../popups/addStock";
-import { getCurrencySymbol } from "../../helpers/exchangeFxns";
-import StockDataDisplay from "../../popups/stockPopup";
+import {addCommas, getCurrencySymbol, colorSwitcher} from "../../helpers/exchangeFxns";
+import StockDataDisplay from "../../popups/StockDisplay";
 import '../../App.css';
 import { PlusOutlined } from '@ant-design/icons';
 
@@ -77,22 +77,6 @@ export default class StockList extends Component {
     }
 
     render() {
-        function colorSwitcher(int) {
-            const value = Number(int);
-
-            if (value >= 100){
-                return 'largePositive';
-
-            } else if (value > 25){
-                return 'mediumPositive';
-
-            } else if (value < 0){
-                return 'negative';
-
-            } else {
-                return 'smallPositive';
-            }
-        }
 
         function sectorValue(word) {
             let val = 0;
@@ -133,7 +117,7 @@ export default class StockList extends Component {
                             (getCurrencySymbol(position.currency)) :
                             (getCurrencySymbol(this.props.currency))
                         }
-                        {parseFloat(text).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        {addCommas(parseFloat(text))}
                     </span>
                 }
             },
@@ -152,7 +136,7 @@ export default class StockList extends Component {
                             (getCurrencySymbol(position.currency)) :
                             (getCurrencySymbol(this.props.currency))
                         }
-                        {parseFloat(text).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        {addCommas(parseFloat(text))}
                     </span>
                 }
             },
@@ -168,7 +152,7 @@ export default class StockList extends Component {
                                 (getCurrencySymbol(position.currency)) :
                                 (getCurrencySymbol(this.props.currency))
                             }
-                            {parseFloat(text).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                            {addCommas(parseFloat(text))}
                         </span>
                 }
             },
@@ -180,14 +164,14 @@ export default class StockList extends Component {
                             (getCurrencySymbol(position.currency)) :
                             (getCurrencySymbol(this.props.currency))
                         }
-                        {parseFloat(text).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        {addCommas(parseFloat(text))}
                     </span>
                 }
             },
             {
                 title: '% Profit', dataIndex: 'profitPercent',
                 render: (text) => {
-                    return <span>{parseFloat(text).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}%</span>;
+                    return <span>{addCommas(parseFloat(text))}%</span>;
                 }
             },
         ]
@@ -243,7 +227,7 @@ export default class StockList extends Component {
                             size="small"
                             style={{borderRadius: '25px'}}
                             rowClassName={ (record, index) => {
-                                return `${colorSwitcher(record['profitPercent'])} hoverTableRows`;
+                                return `${colorSwitcher(record['profitPercent'])} hoverTableRows tableTextSize`;
                             }}
                             onRow={ (record, rowIndex) => {
                                 return {
@@ -260,22 +244,19 @@ export default class StockList extends Component {
                                         {this.props.currency === 'Default' ?
                                             (getCurrencySymbol('CAD')) :
                                             (getCurrencySymbol(this.props.currency))
-                                        } {this.props.totalBookValue.toFixed(2)
-                                        .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                        } {addCommas(this.props.totalBookValue)}
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell index={6}>
                                         {this.props.currency === 'Default' ?
                                             (getCurrencySymbol('CAD')) :
                                             (getCurrencySymbol(this.props.currency))
-                                        } {this.props.currentTotal.toFixed(2)
-                                        .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                                        } {addCommas(this.props.currentTotal)}
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell index={7}>
                                         {this.props.currency === 'Default' ?
                                             (getCurrencySymbol('CAD')) :
                                             (getCurrencySymbol(this.props.currency))
-                                        } {(this.props.currentTotal - this.props.totalBookValue).toFixed(2)
-                                        .toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") }
+                                        } {addCommas(this.props.currentTotal - this.props.totalBookValue)}
                                     </Table.Summary.Cell>
                                     <Table.Summary.Cell index={8}>
                                         {((this.props.currentTotal/this.props.totalBookValue) * 100).toFixed(2)} %

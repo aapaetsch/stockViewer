@@ -53,21 +53,19 @@
 
 .negative{
   color: #f5222d;
-  font-size: 11px;
 }
 .smallPositive{
   color: var(--neutral-color);
-  font-size: 11px;
 }
 .mediumPositive{
   color: var(--positive-color);
-  font-size: 11px;
 }
 .largePositive{
   color: var(--positive-large-color);
+}
+.tableTextSize{
   font-size: 11px;
 }
-
 .recentTransaction {
   font-size: 11px;
 }
