@@ -69,7 +69,15 @@ export default class HistoricalChart extends Component {
         const currentDate = [...this.state.originalData];
         const day = 8.64e+7
         const now = (Date.now());
-        const range = (this.state.dateRange * day)
+
+        let range;
+        if (this.state.dateRange !== 'purchaseDate'){
+            range = now - (this.state.dateRange * day)
+        } else {
+            range = (this.props.purchaseRange)
+            console.log(this.props.purchaseRange)
+        }
+
         let newData = [];
         console.log('Range:', this.state.dateRange,
             '\nStart:',new Date(now - range),
@@ -82,7 +90,7 @@ export default class HistoricalChart extends Component {
         for (let i = 0; i < currentDate.length; i++){
             const infoDate = currentDate[i].Date * 1000;
 
-            if (infoDate >= (now - range) && infoDate <= now){
+            if (infoDate >= (range) && infoDate <= now){
                 let newDay = {...currentDate[i]};
                 newDay.Date = infoDate;
                 newData.push(newDay);
@@ -133,32 +141,41 @@ export default class HistoricalChart extends Component {
                         checked={this.decideChecked(14)}
                         onClick={() => this.setRange(14)}
                     >
-                        <span style={{color: '#fff'}}>14D</span>
+                        <span>14D</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(31)}
                         onClick={() => this.setRange(31)}
                     >
-                        <span style={{color: '#fff'}}>1M</span>
+                        <span>1M</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(90)}
                         onClick={() => this.setRange(90)}
                     >
-                        <span style={{color: '#fff'}}>3M</span>
+                        <span>3M</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(180)}
                         onClick={() => this.setRange(180)}
                     >
-                        <span style={{color: '#fff'}}>6M</span>
+                        <span>6M</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(365)}
                         onClick={() => this.setRange(365)}
                     >
-                        <span style={{color: '#fff'}}>1Y</span>
+                        <span>1Y</span>
                     </Checkbox>
+                    {this.props.purchaseRange !== undefined &&
+                        <Checkbox
+                            checked={this.decideChecked('purchaseDate')}
+                            onClick={() => this.setRange('purchaseDate')}
+                        >
+                            Since Purchase
+                        </Checkbox>
+                    }
+
 
                 </Space>
 

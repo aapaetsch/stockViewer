@@ -6,7 +6,7 @@ import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
 import '../App.css';
 import {checkTickerExists} from "../helpers/APICommunication";
-import StockDataDisplay from "../popups/stockPopup";
+import StockDataDisplay from "../popups/StockDisplay";
 
 
 const { Search } = Input;

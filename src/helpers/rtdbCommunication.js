@@ -1,4 +1,5 @@
 import { auth, realTime } from '../services/firebase';
+import { message } from 'antd';
 import { checkTickerExists } from "./APICommunication";
 
 
@@ -7,6 +8,11 @@ export async function addPosition(values, cost){
     if (currentUser === null){
         return [false, null];
     }
+    if (values.shares <= 0 || cost < 0){
+        message.error('Error: Cannot buy a negative position');
+        return [false, null]
+    }
+
     const uid = currentUser.uid;
     const data = await checkTickerExists(values.ticker);
 
@@ -115,5 +121,22 @@ function logTransaction(uid, ticker, type, data){
 export async function deleteStock(uid, values, cost){
 //TODO: add delete stocks
 }
+
+export async function sellStock(uid, values, cost){
+    //TODO: add sellStock
+}
+
+export async function getPositionListener(uid, ticker){
+    ticker = ticker.replace('.', '_');
+    try{
+        return realTime.ref(`/portfolios/${uid}/${ticker}`).on('value', (position) => {
+
+        })
+    } catch(error){
+        console.log('Error with Position Listener:', error);
+        return false
+    }
+}
+
 
 

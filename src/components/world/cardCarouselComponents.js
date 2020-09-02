@@ -141,7 +141,7 @@ export const WorldStatInfoCard = (props) => {
     )
 }
 
-function formatDate(timeStamp) {
+export function formatDate(timeStamp) {
     const d = new Date(timeStamp * 1000);
     return `${d.toLocaleDateString("en-US")} ${d.toLocaleTimeString("en-US")}`
 }

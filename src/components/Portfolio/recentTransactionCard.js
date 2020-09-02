@@ -53,6 +53,7 @@ export default class RecentTransactionTable extends Component {
     }
 
     sortData = () => {
+        console.log(this.props.data)
         if (this.state.loading === false && this.props.data.length !== 0){
             this.setState({loading: true}, async () => {
                 let data = [];
