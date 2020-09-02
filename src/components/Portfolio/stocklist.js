@@ -3,9 +3,8 @@ import {Row, Col, Table, Select, Space, notification, Skeleton, Modal} from 'ant
 import { auth } from '../../services/firebase';
 import AddStock from "../../popups/addStock";
 import { getCurrencySymbol } from "../../helpers/exchangeFxns";
-import TableInternal from "./tableInternal";
+import StockDataDisplay from "../../popups/stockPopup";
 import '../../App.css';
-import StockDataDisplay from "./tableInternal";
 import { PlusOutlined } from '@ant-design/icons';
 
 
@@ -32,13 +31,17 @@ export default class StockList extends Component {
         this.state = {
             showLoading: false,
             gutterSize: [10,10],
+            showStockPopup: false,
+            stockDisplayData: {}
         }
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext){
-        return this.props.data !== nextProps.data || this.state.showLoading !== nextState.showLoading
+        return this.props.data !== nextProps.data
             || this.props.currency !== nextProps.currency
-            || this.props.updatingCurrency !== nextProps.updatingCurrency;
+            || this.props.updatingCurrency !== nextProps.updatingCurrency
+            || this.state.showStockPopup !== nextState.showStockPopup
+            || this.state.showLoading !== nextState.showLoading;
     }
 
     componentDidUpdate(prevProps, prevState, snapshot){
@@ -65,7 +68,13 @@ export default class StockList extends Component {
         this.props.setCurrency(value);
     }
 
+    openStockPopup = (data) => {
+        this.setState({stockDisplayData: data, showStockPopup: true});
+    }
 
+    closeStockPopup = () => {
+        this.setState({stockDisplayData: {}, showStockPopup: false});
+    }
 
     render() {
         function colorSwitcher(int) {
@@ -236,25 +245,10 @@ export default class StockList extends Component {
                             rowClassName={ (record, index) => {
                                 return `${colorSwitcher(record['profitPercent'])} hoverTableRows`;
                             }}
-                            // expandable={{
-                            //     expandedRowRender: (record, index) => {
-                            //         return <TableInternal data={record}/>
-                            //     },
-                            //     expandRowByClick: true
-                            // }}
                             onRow={ (record, rowIndex) => {
                                 return {
                                     onClick: event => {
-                                        Modal.info({
-                                            content: <StockDataDisplay data={record} owned={true}/>,
-                                            title:
-                                                <h2 style={{ alignSelf: 'center'}}>
-                                                    {`${record.title}`}
-                                                </h2>,
-                                            width: '80%',
-                                            icon: null,
-                                            className: 'loginCard'
-                                        })
+                                        this.openStockPopup(record);
                                     }
                                 }
                             }}
@@ -288,14 +282,14 @@ export default class StockList extends Component {
                                     </Table.Summary.Cell>
                                 </Table.Summary.Row>
                             )}
-
-
-
-
-
                         />
                     </Skeleton>
                 </div>
+                <StockDataDisplay
+                    close={this.closeStockPopup}
+                    data={this.state.stockDisplayData}
+                    visible={this.state.showStockPopup}
+                    owned={true}/>
             </div>
         );
     }

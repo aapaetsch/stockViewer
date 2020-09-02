@@ -3,6 +3,7 @@ import { Row, Col, Carousel, Button } from 'antd';
 import { getMultipleTickers, getAllOf } from "../helpers/APICommunication";
 import { CardCarousel } from "../components/world/cardCarouselComponents";
 import '../App.css';
+import StockDataDisplay from "../popups/stockPopup";
 const stonkApi = 'http://localhost:5000/stonksAPI/v1';
 
 export default class WorldStats extends Component {
@@ -13,6 +14,8 @@ export default class WorldStats extends Component {
             data: [],
             currencyData: [null, null, null, null],
             indicieData: [null, null, null, null],
+            stockDisplayData: {},
+            showStockPopup: false,
             // updatingData: false,
         }
         this.getCurrencyStats = this.getCurrencyStats.bind(this);
@@ -38,9 +41,6 @@ export default class WorldStats extends Component {
             )});
     }
 
-
-
-
     hasBadData = (amount) => {
         let data = [];
         for (let i = 0; i < amount; i++){
@@ -49,11 +49,26 @@ export default class WorldStats extends Component {
         return data;
     }
 
+    openStockPopup = (data) => {
+        console.log(data)
+        this.setState({stockDisplayData: data, showStockPopup: true});
+    }
+
+    closeStockPopup = () => {
+        this.setState({stockDisplayData: {}, showStockPopup: false});
+    }
+
     render() {
         return (
             <div className='routerBackground'>
-                <CardCarousel data={this.state.indicieData} type='index'/>
-                <CardCarousel data={this.state.currencyData} type='exchange'/>
+                <CardCarousel onClick={this.openStockPopup} data={this.state.indicieData} type='index'/>
+                <CardCarousel onClick={this.openStockPopup} data={this.state.currencyData} type='exchange'/>
+                <StockDataDisplay
+                    close={this.closeStockPopup}
+                    owned={false}
+                    data={this.state.stockDisplayData}
+                    visible={this.state.showStockPopup}
+                    />
             </div>
         );
     }

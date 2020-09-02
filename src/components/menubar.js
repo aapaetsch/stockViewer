@@ -6,7 +6,7 @@ import Authenticate from "../popups/authenticate";
 import { UserOutlined, ImportOutlined } from '@ant-design/icons';
 import '../App.css';
 import {checkTickerExists} from "../helpers/APICommunication";
-import StockDataDisplay from "./Portfolio/tableInternal";
+import StockDataDisplay from "../popups/stockPopup";
 
 
 const { Search } = Input;
@@ -20,6 +20,8 @@ export default class MenuBar extends Component {
             menuBarGutter: 8,
             showAuthenticate: false,
             authenticateType: null,
+            showStockPopup: false,
+            stockDisplayData: {}
         }
     }
 
@@ -43,6 +45,13 @@ export default class MenuBar extends Component {
         }
     }
 
+    openStockPopup = (data) => {
+        this.setState({stockDisplayData: data, showStockPopup: true});
+    }
+
+    closeStockPopup = () => {
+        this.setState({stockDisplayData: {}, showStockPopup: false});
+    }
 
     render () {
         function registeredUser(user) {
@@ -85,66 +94,74 @@ export default class MenuBar extends Component {
             'lg':7
         }
 
-
         return(
-            <Row align='center' justify='space-between' gutter={this.state.menuBarGutter}>
-                <Col {...logoCol}>
-                    {/*Add logo??*/}
-                    <h2 style={{color:'white'}}>
-                        Stonks
-                    </h2>
-                </Col>
-                <Col {...searchCol}>
-                    <Search
-                        placeholder="Enter a Ticker"
-                        style={{width: '100%', paddingTop: '16px'}}
-                        onSearch={ async (value) => {
-                            message.loading({content: 'Searching for ticker...', key: 'searchMessage'},0)
-                            const data = await checkTickerExists(value.toUpperCase())
-                            console.log(data)
-                            if (data !== null && data !== false){
-                                message.success({content: `${value.toUpperCase()} found!`, key: 'searchMessage'}, 1)
-                                if (data.length !== 0){
-                                    Modal.info({
-                                        content: <StockDataDisplay data={data[0]} owned={false}/>,
-                                        title:
-                                            <h2 style={{ alignSelf: 'center'}}>
-                                                    {`${data[0].title}`}
-                                                </h2>,
-                                        width: '60%',
-                                        icon: null,
-                                        className: 'loginCard'
-                                    })
+            <div>
+                <Row align='center' justify='space-between' gutter={this.state.menuBarGutter}>
+                    <Col {...logoCol}>
+                        {/*Add logo??*/}
+                        <h2 style={{color:'white'}}>
+                            Stonks
+                        </h2>
+                    </Col>
+                    <Col {...searchCol}>
+                        <Search
+                            placeholder="Enter a Ticker"
+                            style={{width: '100%', paddingTop: '16px'}}
+                            onSearch={ async (value) => {
+                                message.loading({content: 'Searching for ticker...', key: 'searchMessage'},0)
+                                const data = await checkTickerExists(value.toUpperCase())
+                                if (data !== null && data !== false){
+                                    message.success({content: `${value.toUpperCase()} found!`, key: 'searchMessage'}, 1)
+                                    this.openStockPopup(data);
+
+                                    // Modal.info({
+                                    //     content: <StockDataDisplay data={data} owned={false}/>,
+                                    //     title:
+                                    //         <h2 style={{ alignSelf: 'center'}}>
+                                    //             {`${data.title}`}
+                                    //         </h2>,
+                                    //     width: '60%',
+                                    //     icon: null,
+                                    //     className: 'loginCard'
+                                    // })
+                                } else {
+                                    message.error({content: `Could not find ${value} `, key: 'searchMessage'}, 1);
                                 }
-                            } else {
-                                message.error({content: `Could not find ${value} `, key: 'searchMessage'}, 1);
-                            }
-                        }}
-                        enterButton/>
-                </Col>
-                <Col {...loginCol} style={{textAlign: 'right'}}>
-                {/*Login/ authenticated user*/}
-                    { this.props.currentUser === null
-                        ? (
-                            <Space>
-                                <Button type='primary' onClick={() => this.showAuthenticate('Login')}>
-                                    Login
-                                </Button>
-                                <Button type='primary' onClick={() => this.showAuthenticate('Sign Up')}>
-                                    Sign Up
-                                </Button>
-                            </Space>
+                            }}
+                            enterButton/>
+                    </Col>
+                    <Col {...loginCol} style={{textAlign: 'right'}}>
+                        {/*Login/ authenticated user*/}
+                        { this.props.currentUser === null
+                            ? (
+                                <Space>
+                                    <Button type='primary' onClick={() => this.showAuthenticate('Login')}>
+                                        Login
+                                    </Button>
+                                    <Button type='primary' onClick={() => this.showAuthenticate('Sign Up')}>
+                                        Sign Up
+                                    </Button>
+                                </Space>
                             )
-                        : (registeredUser(this.props.currentUser))
-                    }
-                </Col>
+                            : (registeredUser(this.props.currentUser))
+                        }
+                    </Col>
+                </Row>
                 <Authenticate
                     visible={this.state.showAuthenticate}
                     title={this.state.authenticateType}
                     closeAuthenticate={this.hideAuthenticate}
                     changeAuthenticateType={this.switchAuthenticateType}
                 />
-            </Row>
+                {/*TODO: add */}
+                <StockDataDisplay
+                    close={this.closeStockPopup}
+                    owned={false}
+                    data={this.state.stockDisplayData}
+                    visible={this.state.showStockPopup}
+                />
+            </div>
+
         );
     }
 }

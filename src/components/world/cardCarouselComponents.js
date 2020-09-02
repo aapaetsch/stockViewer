@@ -76,7 +76,11 @@ export const CardCarousel = props => {
             </Col>
             <Col {...carouselCol}>
                 <Carousel {...carouselSettings}>
-                    {props.data.map( (stats) => <WorldStatInfoCard data={stats} type={props.type}/> )}
+                    {props.data.map( (stats) =>
+                        <WorldStatInfoCard
+                            data={stats}
+                            onClick={() => props.onClick(stats)}
+                            type={props.type}/> )}
                 </Carousel>
             </Col>
             <Col {...buttonCol} style={{textAlign: 'left'}}>
@@ -104,6 +108,7 @@ export const WorldStatInfoCard = (props) => {
             className='cardRounded'
             title={props.data ? props.data.name : titleSkeleton}
             hoverable
+            onClick={props.onClick}
             >
             {props.data ?
                 (

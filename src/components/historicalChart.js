@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Line } from '@ant-design/charts';
-import { Skeleton, Space, Button, Checkbox, DatePicker } from 'antd';
+import { Skeleton, Space, Button, Checkbox, DatePicker, message } from 'antd';
 import {getHistoricalData} from "../helpers/APICommunication";
 
 const {RangePicker} = DatePicker;
@@ -34,7 +34,11 @@ export default class HistoricalChart extends Component {
                         this.sortData();
                     });
                 } else {
-                    setTimeout(() => this.getChartData(ticker, maxRequests), 5000);
+                    if (maxRequests === 0){
+                        message.error("Error: Could not retrieve historical data")
+                    } else {
+                        setTimeout(() => this.getChartData(this.props.ticker, maxRequests  - 1), 5000);
+                    }
                 }
             })
     }
@@ -51,29 +55,44 @@ export default class HistoricalChart extends Component {
     setRange = (date) => {
         this.setState({dateRange: date, isLoading: false}, () => {
             this.sortData();
+            console.log(date)
         });
-
     }
+
+    changeRange = (dates, dateStrings) => {
+        console.log(dateStrings);
+    }
+
 
     sortData = () => {
 
         const currentDate = [...this.state.originalData];
         const day = 8.64e+7
-        const now = (Date.now())/1000;
-        const range = (this.state.dateRange * day)/1000
+        const now = (Date.now());
+        const range = (this.state.dateRange * day)
         let newData = [];
+        console.log('Range:', this.state.dateRange,
+            '\nStart:',new Date(now - range),
+            '\nEnd:', new Date(now),
+            '\nCurrentFirst:', new Date(currentDate[0].Date * 1000)
+            )
+
+
 
         for (let i = 0; i < currentDate.length; i++){
-            if (currentDate[i].Date >= (now - range) && currentDate[i].Date <= now){
-                currentDate[i].Date = new Date(currentDate[i].Date * 1000);
-                newData.push({...currentDate[i]});
+            const infoDate = currentDate[i].Date * 1000;
+
+            if (infoDate >= (now - range) && infoDate <= now){
+                let newDay = {...currentDate[i]};
+                newDay.Date = infoDate;
+                newData.push(newDay);
             }
         }
 
         newData.sort((a,b) => {
             return a.Close - b.Close
         } );
-
+        console.log(currentDate, newData)
         this.setState({data: newData});
     }
 
@@ -99,43 +118,48 @@ export default class HistoricalChart extends Component {
             },
             tooltip:{
                 fields: ['Close', 'Open', 'High', 'Low', 'Volume']
-            }
+            },
+
         }
 
         return (
             <Skeleton loading={this.state.isLoading} active={true}>
                 <Space>
+                    {/*<RangePicker*/}
+                    {/*    size='small'*/}
+                    {/*    onChange={this.changeRange}*/}
+                    {/*/>*/}
                     <Checkbox
                         checked={this.decideChecked(14)}
                         onClick={() => this.setRange(14)}
                     >
-                        14D
+                        <span style={{color: '#fff'}}>14D</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(31)}
                         onClick={() => this.setRange(31)}
                     >
-                        1M
+                        <span style={{color: '#fff'}}>1M</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(90)}
                         onClick={() => this.setRange(90)}
                     >
-                        3M
+                        <span style={{color: '#fff'}}>3M</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(180)}
                         onClick={() => this.setRange(180)}
                     >
-                        6M
+                        <span style={{color: '#fff'}}>6M</span>
                     </Checkbox>
                     <Checkbox
                         checked={this.decideChecked(365)}
                         onClick={() => this.setRange(365)}
                     >
-                        1Y
+                        <span style={{color: '#fff'}}>1Y</span>
                     </Checkbox>
-                    {/*<RangePicker/>*/}
+
                 </Space>
 
                 <Line {...config}/>

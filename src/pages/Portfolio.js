@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, message, Card } from 'antd';
+import { Row, Col, message } from 'antd';
 import StockList from "../components/Portfolio/stocklist";
 import LocationDonut from '../components/Portfolio/locationDonut';
 import CategoryRadar from '../components/Portfolio/categoryRadar';
@@ -290,7 +290,4 @@ export default class Portfolio extends Component {
             </div>
         );
     }
-
-
-
 }

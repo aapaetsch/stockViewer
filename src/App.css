@@ -211,6 +211,16 @@
 .ant-picker-today-btn {
   color: var(--primary-color);
 }
+.ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+.ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner {
+  background: var(--primary-color);
+}
+
+.ant-picker-range .ant-picker-active-bar{
+  background: var(--active-color);
+}
+
+
 .ant-input-affix-wrapper:hover{
   border-color: var(--primary-color);
 }
@@ -291,14 +301,14 @@
   color: #fff;
 }
 .ant-modal-header {
-  /*background-color: var(--main-bg-color);*/
-  background-color: var(--grey-4);
+  background-color: var(--main-bg-color);
+  /*background-color: var(--grey-4);*/
   color: #fff;
   text-align: center;
 }
 .ant-modal-content {
-  /*background-color: var(--main-bg-color);*/
-  background-color: var(--grey-4);
+  background-color: var(--main-bg-color);
+  /*background-color: var(--grey-4);*/
   color: #fff;
 }
 .ant-modal-close {
@@ -311,11 +321,11 @@
   text-align: left;
 }
 .loginCard {
-  background-color:#f0f0f0 !important;
-  hight: 100%;
+  height: 100%;
   width: 100%;
   text-align: center;
 }
+
 
 /*Ant message overwrites*/
 .ant-message-success .anticon {
